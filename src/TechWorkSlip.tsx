@@ -131,13 +131,16 @@ export default function TechWorkSlip() {
     if (touched.timeStarted && !timeStarted) e.timeStarted = 'Required'
     if (touched.timeEnded && !timeEnded) e.timeEnded = 'Required'
     const firstReq = reportRows[0]?.request?.trim()
+    const firstActionDone = reportRows[0]?.actionDone?.trim()
     if (touched.actionDone && !firstReq) e.actionDone = 'Select request type for at least one report'
+    if (touched.actionDoneText && firstReq && !firstActionDone) e.actionDoneText = 'Action done is required'
     if (touched.technician && !technicianName.trim()) e.technician = 'Required'
     return e
   }, [touched, soNumber, selectedOffices, date, areaSelected, timeStarted, timeEnded, reportRows, technicianName])
 
   const canSubmit = useMemo(() => {
     const firstReq = reportRows[0]?.request?.trim()
+    const firstActionDone = reportRows[0]?.actionDone?.trim()
     return (
       soNumber.trim() !== '' &&
       technicianName.trim() !== '' &&
@@ -146,7 +149,8 @@ export default function TechWorkSlip() {
       areaSelected &&
       timeStarted !== '' &&
       timeEnded !== '' &&
-      (firstReq ?? '') !== ''
+      (firstReq ?? '') !== '' &&
+      (firstActionDone ?? '') !== ''
     )
   }, [soNumber, technicianName, selectedOffices, date, areaSelected, timeStarted, timeEnded, reportRows])
 
@@ -171,9 +175,11 @@ export default function TechWorkSlip() {
       timeStarted: true,
       timeEnded: true,
       actionDone: true,
+      actionDoneText: true,
       technician: true,
     })
     const firstReq = reportRows[0]?.request?.trim()
+    const firstActionDone = reportRows[0]?.actionDone?.trim()
     if (
       !soNumber.trim() ||
       !technicianName.trim() ||
@@ -182,7 +188,8 @@ export default function TechWorkSlip() {
       !areaSelected ||
       !timeStarted ||
       !timeEnded ||
-      !firstReq
+      !firstReq ||
+      !firstActionDone
     )
       return
     setSubmitting(true)
@@ -416,8 +423,11 @@ export default function TechWorkSlip() {
                       <textarea
                         value={row.actionDone}
                         onChange={(e) => updateReportRow(row.id, 'actionDone', e.target.value)}
+                        onBlur={index === 0 ? handleBlur('actionDoneText') : undefined}
                         rows={3}
+                        className={index === 0 && errors.actionDoneText ? 'error' : ''}
                       />
+                      {index === 0 && errors.actionDoneText && <span className="field-error">{errors.actionDoneText}</span>}
                     </label>
                     <label className="field block">
                       <span className="field-label">RECOMMENDATION</span>

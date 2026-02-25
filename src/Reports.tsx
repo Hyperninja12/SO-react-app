@@ -93,25 +93,40 @@ export default function Reports() {
   }, [slips])
 
   const downloadTotals = () => {
-    const headers = ['Category', 'Count']
-    const rows = [
-      ['Total Slips', slips.length],
-      ['Hardware', hardwareCount],
-      ['Software', softwareCount],
-      ['In House', slips.filter((s) => s.areaInHouse).length],
-      ['On Site', slips.filter((s) => s.areaOnSite).length],
-      ['Interagency', slips.filter((s) => s.areaInteragency).length],
-    ]
+    const monthOrder = Array.from(new Set(slips.map((s) => s.date && getMonthKey(s.date)).filter(Boolean) as string[])).sort()
+
+    const byMonthAndRequest = new Map<string, Map<string, number>>()
+    for (const s of slips) {
+      if (!s.date) continue
+      const monthKey = getMonthKey(s.date)
+      const reqType = s.actionDone?.trim() || '—'
+      if (!byMonthAndRequest.has(monthKey)) byMonthAndRequest.set(monthKey, new Map())
+      const reqMap = byMonthAndRequest.get(monthKey)!
+      reqMap.set(reqType, (reqMap.get(reqType) ?? 0) + 1)
+    }
+
+    const rows: string[][] = [['Month', 'Request Type', 'Count']]
+    for (const monthKey of monthOrder) {
+      const reqMap = byMonthAndRequest.get(monthKey) ?? new Map()
+      const sortedTypes = Array.from(reqMap.entries()).sort((a, b) => b[1] - a[1])
+      for (const [reqType, count] of sortedTypes) {
+        rows.push([formatMonthLabel(monthKey), reqType, String(count)])
+      }
+      const totalForMonth = sortedTypes.reduce((sum, [, c]) => sum + c, 0)
+      if (sortedTypes.length > 1) rows.push([formatMonthLabel(monthKey), 'Total', String(totalForMonth)])
+    }
+
     const csvContent = [
-      headers.join(','),
-      ...rows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')),
+      'Request types by month',
+      '',
+      rows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\r\n'),
     ].join('\r\n')
     const BOM = '\uFEFF'
     const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `SO-WorkSlip-Totals-${new Date().toISOString().slice(0, 10)}.csv`
+    a.download = `SO-WorkSlip-Reports-ByMonth-${new Date().toISOString().slice(0, 10)}.csv`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -129,7 +144,7 @@ export default function Reports() {
           onClick={downloadTotals}
           disabled={slips.length === 0}
         >
-          Download Totals (Excel/CSV)
+          Download reports by month (Excel/CSV)
         </button>
       </div>
 
