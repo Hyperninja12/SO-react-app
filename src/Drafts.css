@@ -1,0 +1,108 @@
+.drafts-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.drafts-page .page-title {
+  font-size: 1.5rem;
+  color: #166534;
+  margin: 0 0 24px 0;
+  font-weight: 700;
+}
+
+.drafts-page .empty-msg {
+  color: #6b7280;
+  font-size: 1rem;
+  padding: 24px;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+}
+
+.drafts-page .data-table-wrap {
+  overflow-x: auto;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.drafts-page .data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.drafts-page .data-table th,
+.drafts-page .data-table td {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 14px 16px;
+  text-align: left;
+}
+
+.drafts-page .data-table th {
+  background: #166534;
+  color: #fff;
+  font-weight: 600;
+  white-space: nowrap;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.drafts-page .data-table th:first-child {
+  border-radius: 10px 0 0 0;
+}
+
+.drafts-page .data-table tr:hover {
+  background: #f9fafb;
+}
+
+.drafts-page .data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-resume,
+.btn-delete {
+  padding: 8px 14px;
+  font-size: 13px;
+  font-family: inherit;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.15s ease, transform 0.05s ease;
+}
+
+.btn-resume {
+  background: #166534;
+  color: #fff;
+}
+
+.btn-resume:hover {
+  background: #15803d;
+}
+
+.btn-resume:active {
+  transform: scale(0.98);
+}
+
+.btn-delete {
+  background: #dc2626;
+  color: #fff;
+}
+
+.btn-delete:hover {
+  background: #b91c1c;
+}
+
+.btn-delete:active {
+  transform: scale(0.98);
+}
