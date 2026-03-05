@@ -20,9 +20,42 @@ function formatMonthLabel(key: string): string {
   return `${months[parseInt(m, 10) - 1]} ${y}`
 }
 
+const REPORT_ROW_LABELS = [
+  'COMPUTER ISOLATION',
+  'SOFTWARE ISOLATION, INSTALLATION & CHECKING',
+  'NETWORK ISOLATION, INSTALLATION & CHECKING',
+  'HARDWARE INSTALLATION & CHECKING',
+  'PRINTER ISOLATION, INSTALLATION, PRINTER SHARING & CHECKING',
+] as const
+
+const REQUEST_TO_REPORT_ROW: Record<string, number> = {
+  'computer isolation': 0,
+  'software isolation installation and checking': 1,
+  'activation of operating system and ms office': 1,
+  'password recovery': 1,
+  'network isolation installation and checking': 2,
+  'hardware installation and checking': 3,
+  'printer isolation (reset,installation, printer sharing, and checking)': 4,
+}
+
+function getReportRowIndex(requestOrActionDone: string): number | null {
+  if (!requestOrActionDone || !requestOrActionDone.trim()) return null
+  const key = requestOrActionDone.trim().toLowerCase()
+  if (REQUEST_TO_REPORT_ROW[key] !== undefined) return REQUEST_TO_REPORT_ROW[key]
+  return null
+}
+
+
+function getSection(slip: WorkSlipEntry): 0 | 1 | null {
+  if (slip.areaInHouse || slip.areaOnSite) return 0
+  if (slip.areaInteragency) return 1
+  return null
+}
+
 export default function Reports() {
   const [slips, setSlips] = useState<WorkSlipEntry[]>([])
   const [loading, setLoading] = useState(true)
+  const [reportYear, setReportYear] = useState(() => new Date().getFullYear())
 
   useEffect(() => {
     const loadSlips = async () => {
@@ -93,40 +126,58 @@ export default function Reports() {
   }, [slips])
 
   const downloadTotals = () => {
-    const monthOrder = Array.from(new Set(slips.map((s) => s.date && getMonthKey(s.date)).filter(Boolean) as string[])).sort()
+    const year = reportYear
+    const monthLabels = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEPT', 'OCT', 'NOV', 'DEC']
 
-    const byMonthAndRequest = new Map<string, Map<string, number>>()
-    for (const s of slips) {
-      if (!s.date) continue
-      const monthKey = getMonthKey(s.date)
-      const reqType = s.actionDone?.trim() || '—'
-      if (!byMonthAndRequest.has(monthKey)) byMonthAndRequest.set(monthKey, new Map())
-      const reqMap = byMonthAndRequest.get(monthKey)!
-      reqMap.set(reqType, (reqMap.get(reqType) ?? 0) + 1)
-    }
+    // count[section][rowIndex][month1-12] then total per row
+    type CountGrid = number[][][]
+    const count: CountGrid = [
+      [ [0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0] ],
+      [ [0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0] ],
+    ]
 
-    const rows: string[][] = [['Month', 'Request Type', 'Count']]
-    for (const monthKey of monthOrder) {
-      const reqMap = byMonthAndRequest.get(monthKey) ?? new Map()
-      const sortedTypes = Array.from(reqMap.entries()).sort((a, b) => b[1] - a[1])
-      for (const [reqType, count] of sortedTypes) {
-        rows.push([formatMonthLabel(monthKey), reqType, String(count)])
+    for (const slip of slips) {
+      const section = getSection(slip)
+      if (section === null) continue
+      const slipYear = slip.date ? new Date(slip.date + 'T12:00:00').getFullYear() : year
+      if (slipYear !== year) continue
+
+      const reports = slip.technicalReports && slip.technicalReports.length > 0
+        ? slip.technicalReports
+        : [{ request: slip.actionDone, actionDone: slip.actionDone, recommendation: slip.recommendation }]
+
+      const month1Based = slip.date ? new Date(slip.date + 'T12:00:00').getMonth() + 1 : 1
+      const col = month1Based - 1
+
+      for (const r of reports) {
+        const rowIndex = getReportRowIndex(r.request || r.actionDone)
+        if (rowIndex === null) continue
+        count[section][rowIndex][col] += 1
       }
-      const totalForMonth = sortedTypes.reduce((sum, [, c]) => sum + c, 0)
-      if (sortedTypes.length > 1) rows.push([formatMonthLabel(monthKey), 'Total', String(totalForMonth)])
     }
 
-    const csvContent = [
-      'Request types by month',
-      '',
-      rows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\r\n'),
-    ].join('\r\n')
+    const escape = (cell: string | number) => `"${String(cell).replace(/"/g, '""')}"`
+    const rows: string[][] = []
+
+    rows.push(['', String(year), '', '', '', '', '', '', '', '', '', '', '', ''])
+    rows.push(['Local Government of Tagum (On-Site & In House)', ...monthLabels, 'TOTAL'])
+    for (let r = 0; r < 5; r++) {
+      const total = count[0][r].reduce((s, n) => s + n, 0)
+      rows.push([REPORT_ROW_LABELS[r], ...count[0][r].map(String), String(total)])
+    }
+    rows.push(['Interagency Assistance (DEP-ED, BARANGAY\'S, PAO, RTC, BJMP, PNP)', ...monthLabels, 'TOTAL'])
+    for (let r = 0; r < 5; r++) {
+      const total = count[1][r].reduce((s, n) => s + n, 0)
+      rows.push([REPORT_ROW_LABELS[r], ...count[1][r].map(String), String(total)])
+    }
+
+    const csvContent = rows.map((row) => row.map(escape).join(',')).join('\r\n')
     const BOM = '\uFEFF'
     const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `SO-WorkSlip-Reports-ByMonth-${new Date().toISOString().slice(0, 10)}.csv`
+    a.download = `SO-WorkSlip-Reports-${year}-${new Date().toISOString().slice(0, 10)}.csv`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -138,6 +189,18 @@ export default function Reports() {
       <h1 className="page-title">Reports</h1>
 
       <div className="filter-bar">
+        <label className="filter-year-label">
+          Year for report:
+          <select
+            value={reportYear}
+            onChange={(e) => setReportYear(Number(e.target.value))}
+            className="filter-year-select"
+          >
+            {Array.from(new Set([reportYear, new Date().getFullYear(), ...slips.map((s) => s.date ? new Date(s.date + 'T12:00:00').getFullYear() : new Date().getFullYear())])).sort((a, b) => b - a).map((y) => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
+        </label>
         <button
           type="button"
           className="filter-btn download-btn"

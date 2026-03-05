@@ -1,11 +1,18 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
 import cors from 'cors';
 import { initializeDatabase } from './database.js';
 import { createSlipRoutes } from './routes/slips.js';
+import { createAdminRoutes } from './routes/admin.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Load .env from project root and backend folder
+dotenv.config({ path: path.join(__dirname, '..', '..', '.env') });
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -17,6 +24,7 @@ async function startServer() {
   const db = await initializeDatabase();
 
   app.use('/api', createSlipRoutes(db));
+  app.use('/api', createAdminRoutes(db));
 
   const distPath = path.join(__dirname, '..', '..', 'dist');
   app.use(express.static(distPath));

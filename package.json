@@ -6,8 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:backend": "npm run build --prefix backend",
     "preview": "vite preview",
-    "start": "npm run build && npm run build --prefix backend && cd backend && node dist/server.js"
+    "start": "npm run build && npm run build:backend && node backend/dist/server.js",
+    "start:server": "node backend/dist/server.js"
   },
   "dependencies": {
     "react": "^19.2.4",

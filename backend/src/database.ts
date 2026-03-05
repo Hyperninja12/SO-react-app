@@ -32,5 +32,12 @@ export async function initializeDatabase(): Promise<Database> {
     )
   `);
 
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS so_sequence (
+      year INTEGER PRIMARY KEY,
+      next_sequence INTEGER NOT NULL DEFAULT 1
+    )
+  `);
+
   return db;
 }

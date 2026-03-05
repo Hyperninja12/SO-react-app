@@ -55,7 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null)
       localStorage.removeItem(AUTH_KEY)
       setIsLogoutLoading(false)
-    }, 1500) // 1.5 second loading screen for logout
+    }, 1500) // loading screen
   }, [])
 
   const superAdminUsername = (String(import.meta.env.VITE_SUPERADMIN_USERNAME || '').trim() || String(import.meta.env.VITE_LOGIN_USERNAME1 || '').trim()).toLowerCase()
@@ -76,7 +76,7 @@ function validateCredentials(username: string, password: string): boolean {
   const inputUsername = username.trim().toLowerCase()
   const inputPassword = password.trim()
 
-  // Check numbered accounts first (VITE_LOGIN_USERNAME1, VITE_LOGIN_PASSWORD1, etc.)
+  // account
   let index = 1
   while (true) {
     const envUsername = import.meta.env[`VITE_LOGIN_USERNAME${index}`]
@@ -91,7 +91,6 @@ function validateCredentials(username: string, password: string): boolean {
     index++
   }
 
-  // Fallback to single account format for backward compatibility
   const allowed = (String(import.meta.env.VITE_LOGIN_USERNAME || import.meta.env.VITE_LOGIN_EMAIL || '').trim() || 'admin').toLowerCase()
   const allowedPassword = String(import.meta.env.VITE_LOGIN_PASSWORD || '').trim() || 'admin123'
   return inputUsername === allowed && inputPassword === allowedPassword

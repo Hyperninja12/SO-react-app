@@ -9,6 +9,7 @@ import TechWorkSlip from './TechWorkSlip'
 import Drafts from './Drafts'
 import ViewData from './ViewData'
 import Reports from './Reports'
+import AdminSettings from './AdminSettings'
 
 function AppRoutes() {
   const { user, isReady, login, isPostLoginLoading } = useAuth()
@@ -30,6 +31,7 @@ function AppRoutes() {
         <Route path="/drafts" element={<Drafts />} />
         <Route path="/data" element={<ViewData />} />
         <Route path="/reports" element={<Reports />} />
+        <Route path="/admin" element={<AdminSettings />} />
       </Route>
     </Routes>
   )

@@ -70,9 +70,47 @@
   color: #374151;
   font-weight: 500;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 4px 6px;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.so-input-wrap {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  padding: 0 8px;
+  min-width: 120px;
+}
+
+.so-input-wrap.error {
+  border-color: #b91c1c;
+}
+
+.so-input-wrap:focus-within {
+  outline: none;
+  border-color: #166534;
+  box-shadow: 0 0 0 2px rgba(22, 101, 52, 0.15);
+}
+
+.so-yy-prefix {
+  font-weight: 600;
+  color: #166534;
+  user-select: none;
+  font-size: 12px;
+  padding: 6px 0;
+}
+
+.so-sequence-input {
+  width: 58px;
+  border: none;
+  padding: 6px 0 6px 2px;
+  font-size: 12px;
+  font-family: inherit;
+  background: transparent;
+  outline: none;
 }
 
 .so-input {

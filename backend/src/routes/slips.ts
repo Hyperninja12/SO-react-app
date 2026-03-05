@@ -2,8 +2,47 @@ import express from 'express';
 import { Database } from 'sqlite';
 import type { WorkSlipEntry } from '../models/WorkSlipEntry.js';
 
+function getEffectiveYear(): number {
+  const override = process.env.SO_YEAR_OVERRIDE;
+  if (override != null && override !== '') {
+    const y = parseInt(override, 10);
+    if (!Number.isNaN(y) && y >= 2000 && y <= 2100) return y;
+  }
+  return new Date().getFullYear();
+}
+
 export function createSlipRoutes(db: Database) {
   const router = express.Router();
+
+  // GET current SO year (2-digit). Does not increment. Use for automatic YY prefix on the form.
+  router.get('/slips/current-so-year', (_req, res) => {
+    try {
+      const fullYear = getEffectiveYear();
+      const yy = String(fullYear % 100).padStart(2, '0');
+      res.json({ year: fullYear, yy });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to get current year' });
+    }
+  });
+
+  // GET next SO number (YY-00001 format, year-based sequence). Must be before /slips/:id
+  router.get('/slips/next-so-number', async (req, res) => {
+    try {
+      const fullYear = getEffectiveYear();
+      const yy = fullYear % 100;
+      const row = await db.get('SELECT next_sequence FROM so_sequence WHERE year = ?', fullYear);
+      const nextSeq = row ? (row.next_sequence as number) : 1;
+      const soNumber = `${String(yy).padStart(2, '0')}-${String(nextSeq).padStart(5, '0')}`;
+      if (row) {
+        await db.run('UPDATE so_sequence SET next_sequence = next_sequence + 1 WHERE year = ?', fullYear);
+      } else {
+        await db.run('INSERT INTO so_sequence (year, next_sequence) VALUES (?, 2)', fullYear);
+      }
+      res.json({ soNumber });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to generate SO number' });
+    }
+  });
 
   // GET all slips
   router.get('/slips', async (req, res) => {

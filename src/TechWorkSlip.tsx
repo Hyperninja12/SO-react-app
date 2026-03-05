@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import logo from "./assets/logo.jpg";
-import { saveSlip, saveDraft, getDraftById } from './store.ts'
+import { saveSlip, saveDraft, getDraftById, getNextSONumber, getCurrentSOYear } from './store.ts'
 import { 
   OFFICES_IN_HOUSE, 
   OFFICES_ON_SITE, 
@@ -15,21 +15,9 @@ import {
 } from './constants.ts'
 import './TechWorkSlip.css'
 
-function generateSONumber(): string {
-  const shortYear = new Date().getFullYear() % 100
-  const key = 'tech-work-slip-so-counter'
-  const stored = localStorage.getItem(key)
-  const lastYear = stored ? parseInt(stored.slice(0, 2), 10) : null
-  let count = stored ? parseInt(stored.slice(3), 10) : 0
-  if (lastYear !== shortYear) count = 0
-  count += 1
-  const next = `${String(shortYear).padStart(2, '0')}-${count.toString().padStart(6, '0')}`
-  localStorage.setItem(key, next)
-  return next
-}
-
 export default function TechWorkSlip() {
-  const [soNumber, setSONumber] = useState('')
+  const [effectiveYY, setEffectiveYY] = useState('')
+  const [soSequencePart, setSoSequencePart] = useState('')
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10))
   const [quarter, setQuarter] = useState(() => getQuarterFromDate(new Date().toISOString().slice(0, 10)))
   const [areaInHouse, setAreaInHouse] = useState(false)
@@ -65,10 +53,36 @@ export default function TechWorkSlip() {
   }, [officesOpen])
 
   useEffect(() => {
+    if (draftId) {
+      const draft = getDraftById(draftId)
+      if (draft) {
+        const full = draft.soNumber || ''
+        const dash = full.indexOf('-')
+        if (dash >= 0) {
+          setEffectiveYY(full.slice(0, dash))
+          setSoSequencePart(full.slice(dash + 1))
+        } else {
+          setSoSequencePart(full)
+        }
+        return
+      }
+    }
+    getCurrentSOYear().then(setEffectiveYY)
+    setSoSequencePart('')
+  }, [draftId])
+
+  useEffect(() => {
     if (!draftId) return
     const draft = getDraftById(draftId)
     if (!draft) return
-    setSONumber(draft.soNumber)
+    const full = draft.soNumber || ''
+    const dash = full.indexOf('-')
+    if (dash >= 0) {
+      setEffectiveYY(full.slice(0, dash))
+      setSoSequencePart(full.slice(dash + 1))
+    } else {
+      setSoSequencePart(full)
+    }
     setDate(draft.date)
     setQuarter(draft.quarter ?? getQuarterFromDate(draft.date))
     setAreaInHouse(draft.areaInHouse)
@@ -124,7 +138,7 @@ export default function TechWorkSlip() {
 
   const errors = useMemo(() => {
     const e: Record<string, string> = {}
-    if (touched.soNumber && !soNumber.trim()) e.soNumber = 'Required'
+    if (touched.soNumber && soSequencePart !== '' && !/^\d{5}$/.test(soSequencePart)) e.soNumber = 'Use 5 digits for sequence'
     if (touched.offices && selectedOffices.length === 0) e.offices = 'Select at least one office'
     if (touched.date && !date.trim()) e.date = 'Required'
     if (touched.area && !areaSelected) e.area = 'Select at least one area'
@@ -136,13 +150,15 @@ export default function TechWorkSlip() {
     if (touched.actionDoneText && firstReq && !firstActionDone) e.actionDoneText = 'Action done is required'
     if (touched.technician && !technicianName.trim()) e.technician = 'Required'
     return e
-  }, [touched, soNumber, selectedOffices, date, areaSelected, timeStarted, timeEnded, reportRows, technicianName])
+  }, [touched, soSequencePart, selectedOffices, date, areaSelected, timeStarted, timeEnded, reportRows, technicianName])
 
   const canSubmit = useMemo(() => {
     const firstReq = reportRows[0]?.request?.trim()
     const firstActionDone = reportRows[0]?.actionDone?.trim()
+    const validSequence = soSequencePart === '' || /^\d{5}$/.test(soSequencePart)
     return (
-      soNumber.trim() !== '' &&
+      effectiveYY !== '' &&
+      validSequence &&
       technicianName.trim() !== '' &&
       selectedOffices.length > 0 &&
       date.trim() !== '' &&
@@ -152,7 +168,7 @@ export default function TechWorkSlip() {
       (firstReq ?? '') !== '' &&
       (firstActionDone ?? '') !== ''
     )
-  }, [soNumber, technicianName, selectedOffices, date, areaSelected, timeStarted, timeEnded, reportRows])
+  }, [effectiveYY, soSequencePart, technicianName, selectedOffices, date, areaSelected, timeStarted, timeEnded, reportRows])
 
   const handleBlur = (field: string) => () => setTouched((t) => ({ ...t, [field]: true }))
 
@@ -181,7 +197,7 @@ export default function TechWorkSlip() {
     const firstReq = reportRows[0]?.request?.trim()
     const firstActionDone = reportRows[0]?.actionDone?.trim()
     if (
-      !soNumber.trim() ||
+      !effectiveYY ||
       !technicianName.trim() ||
       selectedOffices.length === 0 ||
       !date.trim() ||
@@ -195,7 +211,9 @@ export default function TechWorkSlip() {
     setSubmitting(true)
     setSubmitMessage(null)
     setSubmitError(null)
-    const finalSO = soNumber.trim()
+    const finalSO = (soSequencePart.trim() && /^\d{5}$/.test(soSequencePart))
+      ? effectiveYY + '-' + soSequencePart
+      : await getNextSONumber()
     const quarterVal = quarter || getQuarterFromDate(date)
     const technicalReports = reportRows.map((r) => ({ request: r.request.trim(), actionDone: r.actionDone.trim(), recommendation: r.recommendation.trim() }))
     try {
@@ -228,11 +246,13 @@ export default function TechWorkSlip() {
     }
   }
 
-  const handleSaveDraft = () => {
-    const draftSO = soNumber.trim() || generateSONumber()
+  const handleSaveDraft = async () => {
+    const draftSO = (soSequencePart.trim() && /^\d{5}$/.test(soSequencePart))
+      ? effectiveYY + '-' + soSequencePart
+      : await getNextSONumber()
     const technicalReports = reportRows.map((r) => ({ request: r.request, actionDone: r.actionDone, recommendation: r.recommendation }))
     saveDraft({
-      soNumber: draftSO,
+      soNumber: draftSO || (effectiveYY ? effectiveYY + '-00001' : ''),
       date,
       quarter: quarter || getQuarterFromDate(date),
       areaInHouse,
@@ -267,22 +287,19 @@ export default function TechWorkSlip() {
             <div className="org-line org-name">CITY INFORMATION AND COMMUNICATION TECHNOLOGY MANAGEMENT OFFICE</div>
           </div>
           <div className="so-number">
-            SO No - Tech: <input
-  type="text"
-  value={soNumber}
-  onChange={(e) => {
-    let value = e.target.value.replace(/[^0-9]/g, '')
-    if (value.length > 8) value = value.slice(0, 8)
-    if (value.length > 2) value = value.slice(0, 2) + '-' + value.slice(2)
-    setSONumber(value)
-  }}
-  onBlur={handleBlur('soNumber')}
-  placeholder="26-000001"
-  maxLength={9}
-  className={`so-input ${errors.soNumber ? 'error' : ''}`}
-/>
+            SO No - Tech: <div className={`so-input-wrap ${errors.soNumber ? 'error' : ''}`}>
+              <span className="so-yy-prefix">{effectiveYY || '…'}-</span>
+              <input
+                type="text"
+                value={soSequencePart}
+                onChange={(e) => setSoSequencePart(e.target.value.replace(/\D/g, '').slice(0, 5))}
+                onBlur={handleBlur('soNumber')}
+                placeholder="00001"
+                maxLength={5}
+                className="so-input so-sequence-input"
+              />
+            </div>
             {errors.soNumber && <span className="field-error so-error-inline">{errors.soNumber}</span>}
-
           </div>
         </div>
         <div className="header-divider" />

@@ -58,6 +58,78 @@ function normalizeEntry(raw: LegacyEntry): WorkSlipEntry {
   }
 }
 
+/** Get current SO year (2-digit) for automatic YY prefix. Does not reserve a number. */
+export async function getCurrentSOYear(): Promise<string> {
+  try {
+    const res = await fetch(`${API_BASE}/api/slips/current-so-year`)
+    if (!res.ok) throw new Error('Failed to get current year')
+    const data = (await res.json()) as { yy?: string }
+    return data.yy ?? String(new Date().getFullYear() % 100).padStart(2, '0')
+  } catch (e) {
+    console.error('Failed to fetch current SO year:', e)
+    return String(new Date().getFullYear() % 100).padStart(2, '0')
+  }
+}
+
+/** Get next SO number in format YY-00001 (year-based sequence). Reserves the number on the server. */
+export async function getNextSONumber(): Promise<string> {
+  try {
+    const res = await fetch(`${API_BASE}/api/slips/next-so-number`)
+    if (!res.ok) throw new Error('Failed to get next SO number')
+    const data = (await res.json()) as { soNumber: string }
+    return data.soNumber || ''
+  } catch (e) {
+    console.error('Failed to fetch next SO number:', e)
+    const yy = String(new Date().getFullYear() % 100).padStart(2, '0')
+    return `${yy}-00001`
+  }
+}
+
+/** Admin only: close year and prepare next year's sequence. Requires backend password. */
+export async function closeYear(password: string): Promise<{ success: boolean; message?: string; error?: string }> {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/close-year`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: password.trim() }),
+    })
+    const data = (await res.json()) as { success?: boolean; message?: string; error?: string }
+    if (!res.ok) return { success: false, error: data.error || 'Failed to close year' }
+    return { success: true, message: data.message }
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : 'Request failed' }
+  }
+}
+
+export type ArchiveItem = { year: number; filename: string; createdAt: string }
+
+/** Admin only: list archived year files. */
+export async function getArchiveList(): Promise<ArchiveItem[]> {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/archive`)
+    if (!res.ok) return []
+    const data = (await res.json()) as { archives?: ArchiveItem[] }
+    return data.archives ?? []
+  } catch (e) {
+    console.error('Failed to list archives:', e)
+    return []
+  }
+}
+
+/** Admin only: get archived slips for a filename (read-only). */
+export async function getArchiveSlips(filename: string): Promise<WorkSlipEntry[]> {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/archive/${encodeURIComponent(filename)}`)
+    if (!res.ok) return []
+    const data = (await res.json()) as { slips?: LegacyEntry[] }
+    const list = Array.isArray(data.slips) ? data.slips : []
+    return list.map((s) => normalizeEntry(s))
+  } catch (e) {
+    console.error('Failed to fetch archive:', e)
+    return []
+  }
+}
+
 export async function getSlips(): Promise<WorkSlipEntry[]> {
   try {
     const res = await fetch(`${API_BASE}/api/slips`)
