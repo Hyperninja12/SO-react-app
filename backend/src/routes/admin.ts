@@ -71,7 +71,7 @@ export function createAdminRoutes(db: Database) {
 
       res.json({
         success: true,
-        message: `${yearToClose} data archived to ${filename} and removed from View Data. Next year (${nextYear}) is ready — new slips will use ${String(nextYear % 100).padStart(2, '0')}-00001.`,
+        message: `${yearToClose} data archived to ${filename} and removed from View Data. Next year (${nextYear}) is ready — new slips will use ${String(nextYear % 100).padStart(2, '0')}-000001.`,
         archivedCount: parsed.length,
         archiveFile: filename,
       });

@@ -71,7 +71,7 @@ export async function getCurrentSOYear(): Promise<string> {
   }
 }
 
-/** Get next SO number in format YY-00001 (year-based sequence). Reserves the number on the server. */
+/** Get next SO number in format YY-000001 (6-digit sequence). Reserves the number on the server. */
 export async function getNextSONumber(): Promise<string> {
   try {
     const res = await fetch(`${API_BASE}/api/slips/next-so-number`)
@@ -81,7 +81,7 @@ export async function getNextSONumber(): Promise<string> {
   } catch (e) {
     console.error('Failed to fetch next SO number:', e)
     const yy = String(new Date().getFullYear() % 100).padStart(2, '0')
-    return `${yy}-00001`
+    return `${yy}-000001`
   }
 }
 

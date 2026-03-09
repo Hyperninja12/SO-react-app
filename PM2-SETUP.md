@@ -39,26 +39,38 @@ The PM2 process list has been saved and will persist across restarts.
 
 ## Setting Up Auto-Start on Windows Boot
 
-Choose **ONE** of the following methods:
+**Important:** PM2 does **not** start by itself on Windows. You must do one of the steps below **once** so that `pm2 resurrect` runs every time you boot or log in.
 
-### Method 1: Using Windows Task Scheduler (Recommended)
+### Method 1: One-time installer (Easiest)
 
-1. **Right-click the PowerShell script and run as Administrator:**
-   - Navigate to project folder: `C:\Users\TIBO GANI! SA DIAY!\Desktop\first-react-app\`
-   - Right-click `start-pm2.ps1` → Run with PowerShell
+1. **Run the installer script once as Administrator:**
+   - Go to: `C:\Users\TIBO GANI! SA DIAY!\Desktop\first-react-app\`
+   - **Right-click** `install-pm2-startup.ps1` → **Run with PowerShell**
+   - If you get an execution policy error, open PowerShell as Administrator and run:
+     ```powershell
+     Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+     ```
+     Then right-click `install-pm2-startup.ps1` → Run with PowerShell again.
 
-2. **Create a scheduled task:**
-   - Press `Win + R` → type `taskschd.msc` → press Enter
-   - Right-click "Task Scheduler Library" → "Create Basic Task"
-   - **Name:** "Start PM2 Backend Server"
-   - **Trigger:** "At startup"
-   - **Action:** 
-     - Program: `powershell.exe`
-     - Arguments: `-ExecutionPolicy Bypass -File "C:\Users\TIBO GANI! SA DIAY!\Desktop\first-react-app\start-pm2.ps1"`
-   - Check "Run with highest privileges"
-   - Click OK
+2. **Ensure your process list is saved:**
+   ```powershell
+   pm2 save
+   ```
 
-### Method 2: Using Batch File
+After this, every time you **log in** to Windows, the task will run `pm2 resurrect` so your backend starts automatically.
+
+### Method 2: Manual Task Scheduler
+
+1. Press `Win + R` → type `taskschd.msc` → Enter.
+2. Right-click "Task Scheduler Library" → "Create Basic Task".
+3. **Name:** "Start PM2 Backend Server"
+4. **Trigger:** "When I log on" (better than "At startup" so Node/PM2 are in your PATH).
+5. **Action:** Start a program  
+   - Program: `powershell.exe`  
+   - Arguments: `-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "C:\Users\TIBO GANI! SA DIAY!\Desktop\first-react-app\start-pm2.ps1"`
+6. Finish and run `pm2 save` so the list is saved.
+
+### Method 3: Startup folder
 
 1. **Create a shortcut:**
    - Right-click `start-pm2.bat` → Create shortcut

@@ -25,14 +25,14 @@ export function createSlipRoutes(db: Database) {
     }
   });
 
-  // GET next SO number (YY-00001 format, year-based sequence). Must be before /slips/:id
+  // GET next SO number (YY-000001 format, 6-digit sequence). Must be before /slips/:id
   router.get('/slips/next-so-number', async (req, res) => {
     try {
       const fullYear = getEffectiveYear();
       const yy = fullYear % 100;
       const row = await db.get('SELECT next_sequence FROM so_sequence WHERE year = ?', fullYear);
       const nextSeq = row ? (row.next_sequence as number) : 1;
-      const soNumber = `${String(yy).padStart(2, '0')}-${String(nextSeq).padStart(5, '0')}`;
+      const soNumber = `${String(yy).padStart(2, '0')}-${String(nextSeq).padStart(6, '0')}`;
       if (row) {
         await db.run('UPDATE so_sequence SET next_sequence = next_sequence + 1 WHERE year = ?', fullYear);
       } else {

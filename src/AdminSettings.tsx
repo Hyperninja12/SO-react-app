@@ -102,7 +102,7 @@ export default function AdminSettings() {
         <h2 className="admin-section-title">Year-End Reset</h2>
         <p className="admin-section-desc">
           Archive all slips for the current year to a file, remove them from View Data (so you start fresh for the new year),
-          and prepare the next year&apos;s SO counter (27-00001, etc.). You can always view or download archived data below.
+          and prepare the next year&apos;s SO counter (27-000001, etc.). You can always view or download archived data below.
         </p>
         <button type="button" className="admin-btn admin-btn-reset" onClick={handleOpenReset}>
           Close Year & Reset Counter
@@ -180,7 +180,7 @@ export default function AdminSettings() {
           <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
             <h3 className="admin-modal-title">Confirm</h3>
             <p className="admin-modal-text">
-              This will archive all data for the current year to a file, remove it from View Data, and prepare the next year&apos;s counter (e.g. 27-00001).
+              This will archive all data for the current year to a file, remove it from View Data, and prepare the next year&apos;s counter (e.g. 27-000001).
               You can view or download the archived data anytime in &quot;View archived data&quot; below.
             </p>
             <p className="admin-modal-text admin-modal-warning">Do you want to continue?</p>

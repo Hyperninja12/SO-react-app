@@ -61,7 +61,7 @@ export default function ViewData() {
   const [officesOpen, setOfficesOpen] = useState(false)
   const officesRef = useRef<HTMLDivElement>(null)
 
-  // Load slips data on component mount and when refresh changes
+  // Load slips data on component mount, when refresh changes, or when a new slip is submitted elsewhere
   useEffect(() => {
     const loadSlips = async () => {
       setLoading(true)
@@ -71,6 +71,12 @@ export default function ViewData() {
     }
     loadSlips()
   }, [refresh])
+
+  useEffect(() => {
+    const onSlipsUpdated = () => setRefresh((r) => r + 1)
+    window.addEventListener('slips-updated', onSlipsUpdated)
+    return () => window.removeEventListener('slips-updated', onSlipsUpdated)
+  }, [])
 
   const slip = editingId ? slips.find(s => s.id === editingId) : null
 

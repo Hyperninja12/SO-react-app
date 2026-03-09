@@ -138,7 +138,6 @@ export default function TechWorkSlip() {
 
   const errors = useMemo(() => {
     const e: Record<string, string> = {}
-    if (touched.soNumber && soSequencePart !== '' && !/^\d{5}$/.test(soSequencePart)) e.soNumber = 'Use 5 digits for sequence'
     if (touched.offices && selectedOffices.length === 0) e.offices = 'Select at least one office'
     if (touched.date && !date.trim()) e.date = 'Required'
     if (touched.area && !areaSelected) e.area = 'Select at least one area'
@@ -155,7 +154,7 @@ export default function TechWorkSlip() {
   const canSubmit = useMemo(() => {
     const firstReq = reportRows[0]?.request?.trim()
     const firstActionDone = reportRows[0]?.actionDone?.trim()
-    const validSequence = soSequencePart === '' || /^\d{5}$/.test(soSequencePart)
+    const validSequence = soSequencePart === '' || /^\d{6}$/.test(soSequencePart)
     return (
       effectiveYY !== '' &&
       validSequence &&
@@ -211,7 +210,7 @@ export default function TechWorkSlip() {
     setSubmitting(true)
     setSubmitMessage(null)
     setSubmitError(null)
-    const finalSO = (soSequencePart.trim() && /^\d{5}$/.test(soSequencePart))
+    const finalSO = (soSequencePart.trim() && /^\d{6}$/.test(soSequencePart))
       ? effectiveYY + '-' + soSequencePart
       : await getNextSONumber()
     const quarterVal = quarter || getQuarterFromDate(date)
@@ -237,6 +236,27 @@ export default function TechWorkSlip() {
         technicalReports,
       })
       setSubmitMessage('success')
+      // Clear form so it's ready for the next slip
+      const today = new Date().toISOString().slice(0, 10)
+      setSoSequencePart('')
+      getCurrentSOYear().then(setEffectiveYY)
+      setDate(today)
+      setQuarter(getQuarterFromDate(today))
+      setAreaInHouse(false)
+      setAreaOnSite(false)
+      setAreaInteragency(false)
+      setSelectedOffices([])
+      setTimeStarted('')
+      setTimeEnded('')
+      setReportRows([{ id: '1', request: '', actionDone: '', recommendation: '' }])
+      setRequesterSignature('')
+      setTechnicianName('')
+      setApprovedBy('')
+      setPrinterBrand('')
+      setPrinterModel('')
+      setTouched({})
+      // Notify View Data to refresh the list if it's open
+      window.dispatchEvent(new CustomEvent('slips-updated'))
     } catch (e) {
       setSubmitMessage('error')
       setSubmitError(e instanceof Error ? e.message : 'Failed to submit')
@@ -247,12 +267,12 @@ export default function TechWorkSlip() {
   }
 
   const handleSaveDraft = async () => {
-    const draftSO = (soSequencePart.trim() && /^\d{5}$/.test(soSequencePart))
+    const draftSO = (soSequencePart.trim() && /^\d{6}$/.test(soSequencePart))
       ? effectiveYY + '-' + soSequencePart
       : await getNextSONumber()
     const technicalReports = reportRows.map((r) => ({ request: r.request, actionDone: r.actionDone, recommendation: r.recommendation }))
     saveDraft({
-      soNumber: draftSO || (effectiveYY ? effectiveYY + '-00001' : ''),
+      soNumber: draftSO || (effectiveYY ? effectiveYY + '-000001' : ''),
       date,
       quarter: quarter || getQuarterFromDate(date),
       areaInHouse,
@@ -287,19 +307,18 @@ export default function TechWorkSlip() {
             <div className="org-line org-name">CITY INFORMATION AND COMMUNICATION TECHNOLOGY MANAGEMENT OFFICE</div>
           </div>
           <div className="so-number">
-            SO No - Tech: <div className={`so-input-wrap ${errors.soNumber ? 'error' : ''}`}>
+            SO No - Tech: <div className="so-input-wrap">
               <span className="so-yy-prefix">{effectiveYY || '…'}-</span>
               <input
                 type="text"
                 value={soSequencePart}
-                onChange={(e) => setSoSequencePart(e.target.value.replace(/\D/g, '').slice(0, 5))}
+                onChange={(e) => setSoSequencePart(e.target.value.replace(/\D/g, '').slice(0, 6))}
                 onBlur={handleBlur('soNumber')}
-                placeholder="00001"
-                maxLength={5}
+                placeholder="000001"
+                maxLength={6}
                 className="so-input so-sequence-input"
               />
             </div>
-            {errors.soNumber && <span className="field-error so-error-inline">{errors.soNumber}</span>}
           </div>
         </div>
         <div className="header-divider" />
