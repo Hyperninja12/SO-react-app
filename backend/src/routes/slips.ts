@@ -55,6 +55,7 @@ export function createSlipRoutes(db: Database) {
         areaInHouse: Boolean(slip.areaInHouse),
         areaOnSite: Boolean(slip.areaOnSite),
         areaInteragency: Boolean(slip.areaInteragency),
+        schoolName: slip.schoolName ?? undefined,
       }));
       res.json(parsedSlips);
     } catch (error) {
@@ -77,6 +78,7 @@ export function createSlipRoutes(db: Database) {
         areaInHouse: Boolean(slip.areaInHouse),
         areaOnSite: Boolean(slip.areaOnSite),
         areaInteragency: Boolean(slip.areaInteragency),
+        schoolName: slip.schoolName ?? undefined,
       };
       res.json(parsedSlip);
     } catch (error) {
@@ -95,14 +97,14 @@ export function createSlipRoutes(db: Database) {
       await db.run(`
         INSERT INTO work_slips (
           id, soNumber, date, areaInHouse, areaOnSite, areaInteragency,
-          offices, timeStarted, timeEnded, actionDone, recommendation,
+          offices, schoolName, timeStarted, timeEnded, actionDone, recommendation,
           requesterSignature, technicianName, approvedBy, createdAt,
           printerBrand, printerModel, quarter, technicalReports
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, [
         slip.id, slip.soNumber, slip.date, slip.areaInHouse ? 1 : 0,
         slip.areaOnSite ? 1 : 0, slip.areaInteragency ? 1 : 0,
-        JSON.stringify(slip.offices), slip.timeStarted, slip.timeEnded,
+        JSON.stringify(slip.offices), slip.schoolName ?? null, slip.timeStarted, slip.timeEnded,
         slip.actionDone, slip.recommendation, slip.requesterSignature,
         slip.technicianName, slip.approvedBy, slip.createdAt,
         slip.printerBrand, slip.printerModel, slip.quarter,
@@ -122,7 +124,7 @@ export function createSlipRoutes(db: Database) {
       await db.run(`
         UPDATE work_slips SET
           soNumber = ?, date = ?, areaInHouse = ?, areaOnSite = ?,
-          areaInteragency = ?, offices = ?, timeStarted = ?, timeEnded = ?,
+          areaInteragency = ?, offices = ?, schoolName = ?, timeStarted = ?, timeEnded = ?,
           actionDone = ?, recommendation = ?, requesterSignature = ?,
           technicianName = ?, approvedBy = ?, printerBrand = ?,
           printerModel = ?, quarter = ?, technicalReports = ?
@@ -130,7 +132,7 @@ export function createSlipRoutes(db: Database) {
       `, [
         slip.soNumber, slip.date, slip.areaInHouse ? 1 : 0,
         slip.areaOnSite ? 1 : 0, slip.areaInteragency ? 1 : 0,
-        JSON.stringify(slip.offices), slip.timeStarted, slip.timeEnded,
+        JSON.stringify(slip.offices), slip.schoolName ?? null, slip.timeStarted, slip.timeEnded,
         slip.actionDone, slip.recommendation, slip.requesterSignature,
         slip.technicianName, slip.approvedBy, slip.printerBrand,
         slip.printerModel, slip.quarter, JSON.stringify(slip.technicalReports),

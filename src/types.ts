@@ -1,9 +1,6 @@
 export interface TechnicalReportItem {
-  /** The selected request type (dropdown) */
   request: string
-  /** What was actually done (free text) */
   actionDone: string
-  /** Recommendation (free text) */
   recommendation: string
 }
 
@@ -15,6 +12,8 @@ export interface WorkSlipEntry {
   areaOnSite: boolean
   areaInteragency: boolean
   offices: string[]
+  /** When DEP-ED is selected in offices, optional school name */
+  schoolName?: string
   timeStarted: string
   timeEnded: string
   actionDone: string

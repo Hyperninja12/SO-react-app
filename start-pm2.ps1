@@ -1,17 +1,20 @@
 # PowerShell script to start PM2 processes (startup or manual run)
 # Right-click -> Run with PowerShell: window stays open so you can see the result
 
-$projectPath = "C:\Users\TIBO GANI! SA DIAY!\Desktop\first-react-app"
-
-Set-Location $projectPath
-
-$pm2Cmd = Join-Path $env:APPDATA 'npm\pm2.cmd'
-if (-not (Test-Path $pm2Cmd)) {
-	Write-Host "pm2 not found at $pm2Cmd — using 'pm2' from PATH" -ForegroundColor Yellow
-	$pm2Cmd = 'pm2'
-}
-
 try {
+	$projectPath = "C:\Users\TIBO GANI! SA DIAY!\Desktop\first-react-app"
+	if (-not (Test-Path $projectPath)) {
+		Write-Host "ERROR: Project path not found: $projectPath" -ForegroundColor Red
+		throw "Project path not found"
+	}
+	Set-Location $projectPath
+
+	$pm2Cmd = Join-Path $env:APPDATA 'npm\pm2.cmd'
+	if (-not (Test-Path $pm2Cmd)) {
+		Write-Host "pm2 not found at $pm2Cmd — using 'pm2' from PATH" -ForegroundColor Yellow
+		$pm2Cmd = 'pm2'
+	}
+
 	Write-Host "Running pm2 resurrect..." -ForegroundColor Cyan
 	$resurrectOut = & $pm2Cmd resurrect 2>&1
 	$resurrectOut | Write-Host
@@ -27,8 +30,8 @@ try {
 	Write-Host "Done. PM2 processes have been resurrected." -ForegroundColor Green
 } catch {
 	Write-Host "ERROR: $_" -ForegroundColor Red
-	$_ | Out-File -FilePath "$projectPath\pm2-error.log" -Append
+	$_ | Out-File -FilePath "C:\Users\TIBO GANI! SA DIAY!\Desktop\first-react-app\pm2-error.log" -Append -ErrorAction SilentlyContinue
+} finally {
+	Write-Host ""
+	Read-Host "Press Enter to close this window"
 }
-
-Write-Host ""
-Read-Host "Press Enter to close this window"

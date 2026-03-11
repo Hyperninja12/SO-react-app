@@ -28,9 +28,17 @@ export async function initializeDatabase(): Promise<Database> {
       printerBrand TEXT,
       printerModel TEXT,
       quarter INTEGER,
-      technicalReports TEXT -- JSON string
+      technicalReports TEXT, -- JSON string
+      schoolName TEXT
     )
   `);
+
+  // Add schoolName column if DB was created before this field existed
+  try {
+    await db.run('ALTER TABLE work_slips ADD COLUMN schoolName TEXT');
+  } catch {
+    // Column already exists
+  }
 
   await db.exec(`
     CREATE TABLE IF NOT EXISTS so_sequence (

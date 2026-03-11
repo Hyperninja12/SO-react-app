@@ -35,6 +35,7 @@ const emptyForm: Omit<WorkSlipEntry, 'id' | 'createdAt'> = {
   areaOnSite: false,
   areaInteragency: false,
   offices: [],
+  schoolName: '',
   timeStarted: '',
   timeEnded: '',
   actionDone: '',
@@ -106,6 +107,7 @@ export default function ViewData() {
       areaOnSite: slip.areaOnSite,
       areaInteragency: slip.areaInteragency,
       offices: [...slip.offices],
+      schoolName: slip.schoolName ?? '',
       timeStarted: slip.timeStarted,
       timeEnded: slip.timeEnded,
       actionDone: slip.actionDone,
@@ -180,6 +182,7 @@ export default function ViewData() {
           s.date.includes(q) ||
           areaLabel(s).toLowerCase().includes(q) ||
           s.offices.some((o) => o.toLowerCase().includes(q)) ||
+          (s.schoolName || '').toLowerCase().includes(q) ||
           (s.actionDone || '').toLowerCase().includes(q)
       )
     }
@@ -208,7 +211,7 @@ export default function ViewData() {
   }, [slips])
 
   const downloadReport = () => {
-    const headers = ['SO No', 'Date', 'Quarter', 'Area', 'Offices', 'Time Started', 'Time Ended', 'Request', 'Technician', 'Requester', 'Approved By', 'Recommendation', 'Printer Brand', 'Printer Model']
+    const headers = ['SO No', 'Date', 'Quarter', 'Area', 'Offices', 'School', 'Time Started', 'Time Ended', 'Request', 'Technician', 'Requester', 'Approved By', 'Recommendation', 'Printer Brand', 'Printer Model']
     const areaStr = (s: WorkSlipEntry) => {
       const parts: string[] = []
       if (s.areaInHouse) parts.push('In House')
@@ -223,6 +226,7 @@ export default function ViewData() {
       quarterStr(s),
       areaStr(s),
       (s.offices || []).join('; '),
+      s.schoolName ?? '',
       s.timeStarted,
       s.timeEnded,
       s.actionDone || '',
@@ -310,6 +314,7 @@ export default function ViewData() {
                 <th>Quarter</th>
                 <th>Area</th>
                 <th>Offices</th>
+                <th>School</th>
                 <th>Time</th>
                 <th>Request</th>
                 <th>Actions</th>
@@ -323,6 +328,7 @@ export default function ViewData() {
                   <td>{quarterLabel(s)}</td>
                   <td>{areaLabel(s)}</td>
                   <td>{s.offices.length ? s.offices.join(', ') : '—'}</td>
+                  <td>{s.schoolName || '—'}</td>
                   <td>{s.timeStarted} – {s.timeEnded}</td>
                   <td className="cell-action">{s.actionDone || '—'}</td>
                   <td>
@@ -393,6 +399,14 @@ export default function ViewData() {
                   )}
                 </div>
               </div>
+              {form.offices.includes('DEP-ED') && (
+                <div className="edit-form-row">
+                  <label className="edit-field edit-field-full">
+                    <span className="edit-label">School name (DEP-ED)</span>
+                    <input type="text" value={form.schoolName ?? ''} onChange={(e) => setForm((f) => ({ ...f, schoolName: e.target.value }))} placeholder="e.g. Tagum City National High School" />
+                  </label>
+                </div>
+              )}
               <div className="edit-form-row">
                 <label className="edit-field">
                   <span className="edit-label">Time Started</span>

@@ -24,6 +24,7 @@ export default function TechWorkSlip() {
   const [areaOnSite, setAreaOnSite] = useState(false)
   const [areaInteragency, setAreaInteragency] = useState(false)
   const [selectedOffices, setSelectedOffices] = useState<string[]>([])
+  const [schoolName, setSchoolName] = useState('')
   const [officesOpen, setOfficesOpen] = useState(false)
   const officesRef = useRef<HTMLDivElement>(null)
   const [timeStarted, setTimeStarted] = useState('')
@@ -89,6 +90,7 @@ export default function TechWorkSlip() {
     setAreaOnSite(draft.areaOnSite)
     setAreaInteragency(draft.areaInteragency)
     setSelectedOffices([...draft.offices])
+    setSchoolName((draft as { schoolName?: string }).schoolName ?? '')
     setTimeStarted(draft.timeStarted)
     setTimeEnded(draft.timeEnded)
     const reports = (draft as { technicalReports?: { request: string; actionDone?: string; recommendation: string }[] }).technicalReports
@@ -224,6 +226,7 @@ export default function TechWorkSlip() {
         areaOnSite,
         areaInteragency,
         offices: [...selectedOffices],
+        schoolName: selectedOffices.includes('DEP-ED') ? (schoolName?.trim() || undefined) : undefined,
         timeStarted,
         timeEnded,
         actionDone: reportRows[0]?.request?.trim() ?? '',
@@ -246,6 +249,7 @@ export default function TechWorkSlip() {
       setAreaOnSite(false)
       setAreaInteragency(false)
       setSelectedOffices([])
+      setSchoolName('')
       setTimeStarted('')
       setTimeEnded('')
       setReportRows([{ id: '1', request: '', actionDone: '', recommendation: '' }])
@@ -279,6 +283,7 @@ export default function TechWorkSlip() {
       areaOnSite,
       areaInteragency,
       offices: [...selectedOffices],
+      schoolName: selectedOffices.includes('DEP-ED') ? (schoolName?.trim() || undefined) : undefined,
       timeStarted,
       timeEnded,
       actionDone: reportRows[0]?.request ?? '',
@@ -394,6 +399,20 @@ export default function TechWorkSlip() {
               </div>
             )}
           </div>
+          {selectedOffices.includes('DEP-ED') && (
+            <div className="field-box field school-name-field">
+              <label className="field">
+                <span className="field-label">School name (DEP-ED)</span>
+                <input
+                  type="text"
+                  value={schoolName}
+                  onChange={(e) => setSchoolName(e.target.value)}
+                  placeholder="e.g. Tagum City National High School"
+                  className="school-name-input"
+                />
+              </label>
+            </div>
+          )}
           <div className="field-box">
             <label className="field">
               <span className="field-label">Time Started</span>

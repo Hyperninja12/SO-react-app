@@ -45,19 +45,31 @@ The PM2 process list has been saved and will persist across restarts.
 
 1. **Run the installer script once as Administrator:**
    - Go to: `C:\Users\TIBO GANI! SA DIAY!\Desktop\first-react-app\`
-   - **Right-click** `install-pm2-startup.ps1` → **Run with PowerShell**
-   - If you get an execution policy error, open PowerShell as Administrator and run:
+   - **Right-click** `install-pm2-startup.ps1` → **Run with PowerShell** (or open PowerShell as Administrator and run it from the project folder)
+   - If you get an execution policy error, in PowerShell (as Administrator) run:
      ```powershell
      Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
      ```
-     Then right-click `install-pm2-startup.ps1` → Run with PowerShell again.
+     Then run the installer again.
 
-2. **Ensure your process list is saved:**
+2. **When prompted for password:**
+   - **Enter your Windows password** → PM2 will run **when the PC boots** (about 60 seconds after startup) and when you log in.
+   - **Just press Enter (skip)** → PM2 will run only **when you log in**. Use this if you prefer not to store your password, or if your account has **no password** (see below).
+
+   **If this PC/server has no password:** run **`run-enable-autologon.bat`** by right-clicking it → **Run as administrator**. (Or in Administrator PowerShell run: `Set-Location "C:\Users\TIBO GANI! SA DIAY!\Desktop\first-react-app"` then `powershell -ExecutionPolicy Bypass -File ".\enable-autologon.ps1"`.) That enables automatic logon at boot so PM2 starts without you doing anything.
+
+3. **Ensure your process list is saved:**
    ```powershell
    pm2 save
    ```
 
-After this, every time you **log in** to Windows, the task will run `pm2 resurrect` so your backend starts automatically.
+After this, the task will run `pm2 resurrect` at logon (and at startup too if you entered your password).
+
+**Server has no Windows password?**  
+1. Run `install-pm2-startup.ps1` and press Enter when asked for password (task will run at logon only).  
+2. Right-click **`run-enable-autologon.bat`** → **Run as administrator** (this runs the auto-logon script so the PC logs in automatically at boot).  
+3. Run `pm2 save`.  
+After a reboot, the PC will auto-logon and the task will start PM2 — no need to run `pm2 resurrect` yourself.
 
 ### Method 2: Manual Task Scheduler
 
@@ -158,8 +170,8 @@ Press `q` to exit monitoring.
 
 3. **Check Windows Task Scheduler:**
    - Open `taskschd.msc`
-   - Find "Start PM2 Backend Server"
-   - Right-click → "Run" to test
+   - To see PM2 output when testing: right-click **"Run PM2 Backend Server (show window)"** → Run (a window will open and stay open).
+   - The task **"Start PM2 Backend Server"** runs in the background (no window); use the "(show window)" task to verify from Task Scheduler.
 
 4. **Check PM2 logs:**
    ```powershell

@@ -150,6 +150,7 @@ export default function AdminSettings() {
                     <th>Date</th>
                     <th>Area</th>
                     <th>Offices</th>
+                    <th>School</th>
                     <th>Time</th>
                     <th>Request</th>
                   </tr>
@@ -161,6 +162,7 @@ export default function AdminSettings() {
                       <td>{s.date}</td>
                       <td>{areaLabel(s)}</td>
                       <td>{(s.offices || []).join(', ')}</td>
+                      <td>{s.schoolName || '—'}</td>
                       <td>{s.timeStarted} – {s.timeEnded}</td>
                       <td>{s.actionDone || '—'}</td>
                     </tr>
