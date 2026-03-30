@@ -300,7 +300,8 @@ export default function TechWorkSlip() {
   }
 
   return (
-    <div className="tech-work-slip">
+    <div className="gradient-border-element">
+      <div className="tech-work-slip">
       <header className="slip-header">
         <div className="header-inner">
            <div className="logo-container">
@@ -544,6 +545,7 @@ export default function TechWorkSlip() {
           )}
         </button>
         <button type="button" onClick={handleSaveDraft} className="draft-btn">Save as draft</button>
+      </div>
       </div>
     </div>
   )

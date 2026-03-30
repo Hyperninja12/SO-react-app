@@ -1,10 +1,47 @@
-/* Tech Work Slip – modern card-style */
-.tech-work-slip {
+/* Plain wrapper around the work slip */
+.gradient-border-element {
+  position: relative;
+  width: 100%;
   max-width: 820px;
   margin: 32px auto;
   padding: 0;
+  box-sizing: border-box;
+  display: block;
+  border-radius: 12px;
+  background: transparent;
+  animation: none;
+}
+
+.gradient-border-element::before {
+  display: none;
+}
+
+.gradient-border-element > .tech-work-slip {
+  position: relative;
+  z-index: 1;
+  margin: 0 auto;
+  max-width: 820px;
+  width: 100%;
+}
+
+@keyframes work-slip-gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Tech Work Slip – modern card-style */
+.tech-work-slip {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 12px 16px 20px;
   font-family: inherit;
   color: #1f2937;
+  border: 2px solid #166534;
+  border-radius: 12px;
+  overflow: hidden;
+  box-sizing: border-box;
+  background: #fff;
 }
 
 .slip-header {
@@ -672,11 +709,12 @@
 
 .print-actions {
   margin-top: 24px;
-  padding-top: 20px;
+  padding: 28px 16px 8px;
   border-top: 1px solid #e5e7eb;
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  gap: 20px;
   flex-wrap: wrap;
 }
 
@@ -687,6 +725,13 @@
 }
 .save-msg-error {
   color: #b91c1c;
+}
+
+.print-actions .save-msg,
+.print-actions .save-msg-error {
+  flex: 1 0 100%;
+  text-align: center;
+  margin-bottom: 4px;
 }
 
 .submit-btn {
@@ -758,6 +803,126 @@
   transform: scale(0.98);
 }
 
+/* Sticky glass navbar + user profile */
+.govtech-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  margin-bottom: 14px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+}
+
+.navbar-left {
+  display: inline-flex;
+  align-items: center;
+}
+
+.navbar-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.navbar-links {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-link {
+  border: none;
+  background: transparent;
+  color: #334155;
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.nav-link:hover {
+  background: #f1f5f9;
+  color: #166534;
+  transform: translateY(-1px);
+}
+
+.nav-link.active {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.profile-menu {
+  position: relative;
+}
+
+.profile-trigger {
+  border: 1px solid #d1d5db;
+  background: #fff;
+  border-radius: 999px;
+  padding: 4px 8px 4px 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.profile-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: #059669;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-chevron {
+  color: #64748b;
+  font-size: 11px;
+}
+
+.profile-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 130px;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 12px 22px rgba(15, 23, 42, 0.12);
+  padding: 6px;
+  z-index: 70;
+}
+
+.profile-item {
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: #166534;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.profile-item:hover {
+  background: #ecfdf5;
+}
+
 /* Print styles */
 @media print {
   body {
@@ -768,11 +933,27 @@
     display: none !important;
   }
 
+  .gradient-border-element {
+    margin: 0;
+    max-width: none;
+    padding: 0;
+    background: none;
+    animation: none;
+    border-radius: 0;
+  }
+
+  .gradient-border-element::before {
+    display: none;
+  }
+
   .tech-work-slip {
     max-width: none;
     padding: 0;
     margin: 0;
     box-shadow: none;
+    border: none;
+    border-radius: 0;
+    background: transparent;
   }
 
   .slip-header,
