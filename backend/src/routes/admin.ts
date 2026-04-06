@@ -122,5 +122,18 @@ export function createAdminRoutes(db: Database) {
     }
   });
 
+  // GET access logs (admin only)
+  router.get('/admin/access-logs', async (_req, res) => {
+    try {
+      const logs = await db.all(
+        'SELECT id, username, action, ipAddress, timestamp FROM access_logs ORDER BY timestamp DESC LIMIT 500'
+      );
+      res.json({ logs });
+    } catch (error) {
+      console.error('List access logs error:', error);
+      res.status(500).json({ error: 'Failed to list access logs' });
+    }
+  });
+
   return router;
 }

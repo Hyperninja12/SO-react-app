@@ -226,3 +226,140 @@ export function deleteDraft(id: string): void {
 export function getDraftById(id: string): WorkSlipEntry | undefined {
   return getDrafts().find((d) => d.id === id)
 }
+
+// ── User Management API ─────────────────────────────────────────
+
+export type AuthUser = {
+  id: string
+  username: string
+  displayName: string
+  role: string
+}
+
+export type ManagedUser = {
+  id: string
+  username: string
+  role: string
+  displayName: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type RoleDef = {
+  name: string
+  label: string
+  permissions: string[]
+  isDefault: number
+  sortOrder: number
+}
+
+export type LoginResult = {
+  user: AuthUser
+  permissions: string[]
+}
+
+export async function loginUser(username: string, password: string): Promise<LoginResult> {
+  const res = await fetch(`${API_BASE}/api/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password }),
+  })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error((data as { error?: string }).error || 'Login failed')
+  }
+  return res.json()
+}
+
+export async function getUsers(): Promise<ManagedUser[]> {
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/users`)
+    if (!res.ok) return []
+    const data = (await res.json()) as { users?: ManagedUser[] }
+    return data.users ?? []
+  } catch {
+    return []
+  }
+}
+
+export async function createUser(data: { username: string; password: string; role: string; displayName: string }): Promise<ManagedUser> {
+  const res = await fetch(`${API_BASE}/api/auth/users`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error((err as { error?: string }).error || 'Failed to create user')
+  }
+  const result = (await res.json()) as { user: ManagedUser }
+  return result.user
+}
+
+export async function updateUser(id: string, data: { username?: string; password?: string; role?: string; displayName?: string }): Promise<ManagedUser> {
+  const res = await fetch(`${API_BASE}/api/auth/users/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error((err as { error?: string }).error || 'Failed to update user')
+  }
+  const result = (await res.json()) as { user: ManagedUser }
+  return result.user
+}
+
+export async function deleteUser(id: string): Promise<boolean> {
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/users/${id}`, { method: 'DELETE' })
+    return res.status === 204 || res.ok
+  } catch {
+    return false
+  }
+}
+
+export async function getRoles(): Promise<{ roles: RoleDef[]; allPermissions: string[] }> {
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/roles`)
+    if (!res.ok) return { roles: [], allPermissions: [] }
+    return res.json()
+  } catch {
+    return { roles: [], allPermissions: [] }
+  }
+}
+
+export async function updateRole(name: string, data: { permissions?: string[]; label?: string }): Promise<RoleDef> {
+  const res = await fetch(`${API_BASE}/api/auth/roles/${name}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error((err as { error?: string }).error || 'Failed to update role')
+  }
+  const result = (await res.json()) as { role: RoleDef }
+  return result.role
+}
+
+// ── Access History API ─────────────────────────────────────────
+
+export type AccessLog = {
+  id: string
+  username: string
+  action: string
+  ipAddress: string
+  timestamp: string
+}
+
+export async function getAccessLogs(): Promise<AccessLog[]> {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/access-logs`)
+    if (!res.ok) return []
+    const data = (await res.json()) as { logs?: AccessLog[] }
+    return data.logs ?? []
+  } catch {
+    return []
+  }
+}

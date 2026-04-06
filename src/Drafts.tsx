@@ -18,7 +18,7 @@ export default function Drafts() {
   }
 
   return (
-    <div className="drafts-page">
+    <div className="drafts-page animate-fade-in">
       <h1 className="page-title">Drafts</h1>
       {drafts.length === 0 ? (
         <p className="empty-msg">No drafts. Use “Save as draft” on the New Work Slip form to save incomplete slips.</p>

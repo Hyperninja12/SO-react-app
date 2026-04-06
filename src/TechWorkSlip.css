@@ -16,7 +16,7 @@
   display: none;
 }
 
-.gradient-border-element > .tech-work-slip {
+.gradient-border-element>.tech-work-slip {
   position: relative;
   z-index: 1;
   margin: 0 auto;
@@ -25,9 +25,17 @@
 }
 
 @keyframes work-slip-gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 /* Tech Work Slip – modern card-style */
@@ -147,6 +155,7 @@
   box-shadow: none;
   background: transparent;
 }
+
 .so-sequence-input {
   width: 58px;
   border: none;
@@ -423,26 +432,50 @@
 .area-group {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 10px 20px;
+  align-items: stretch;
+  gap: 12px;
+  width: 100%;
 }
 
 .area-group .field-label {
-  margin-bottom: 0;
-  margin-right: 4px;
+  width: 100%;
+  margin-bottom: 4px;
 }
 
 .checkbox-label {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
   color: #374151;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 12px 16px;
+  flex: 1;
+  text-align: center;
+  transition: all 0.2s ease;
+  min-width: 140px;
+}
+
+.checkbox-label:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.checkbox-label:has(input:checked) {
+  background: #166534;
+  color: #ffffff;
+  border-color: #166534;
+  box-shadow: 0 4px 12px rgba(22, 101, 52, 0.25);
+  transform: translateY(-2px);
 }
 
 .checkbox-label input {
-  width: auto;
+  display: none;
 }
 
 .offices-field {
@@ -723,6 +756,7 @@
   color: #166534;
   font-weight: 600;
 }
+
 .save-msg-error {
   color: #b91c1c;
 }
@@ -779,7 +813,9 @@
 }
 
 @keyframes submit-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .draft-btn {
@@ -921,6 +957,69 @@
 
 .profile-item:hover {
   background: #ecfdf5;
+}
+
+/* =============== Modern Form Fields Override =============== */
+
+/* Input Fields */
+.tech-work-slip input[type="text"]:not(.so-sequence-input),
+.tech-work-slip input[type="date"],
+.tech-work-slip input[type="time"],
+.tech-work-slip select,
+.tech-work-slip textarea,
+.offices-dropdown {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  font-family: inherit;
+  background-color: #f9fafb;
+  color: #1f2937;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.tech-work-slip input[type="text"]:not(.so-sequence-input):focus,
+.tech-work-slip input[type="date"]:focus,
+.tech-work-slip input[type="time"]:focus,
+.tech-work-slip select:focus,
+.tech-work-slip textarea:focus,
+.offices-dropdown:focus {
+  outline: none;
+  background-color: #ffffff;
+  border-color: #166534;
+  box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.15);
+  transform: translateY(-1px);
+}
+
+.tech-work-slip input.error,
+.tech-work-slip select.error,
+.tech-work-slip textarea.error,
+.offices-dropdown.error {
+  border-color: #ef4444 !important;
+  background-color: #fef2f2 !important;
+}
+
+/* Field Labels (Small, Uppercase, Gray) */
+.field-label, .quarter-label {
+  font-size: 11px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280 !important;
+  font-weight: 700 !important;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* Section Containers (Softer shadow, white bg, no more bright green borders) */
+.field-box, .quarter-box, .report-row, .signature-row, .approval-block {
+  background: #ffffff !important;
+  border: 1px solid #f3f4f6 !important;
+  border-radius: 12px !important;
+  padding: 18px 20px !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02) !important;
 }
 
 /* Print styles */

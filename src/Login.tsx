@@ -3,7 +3,7 @@ import logo from './assets/logo.jpg'
 import './Login.css'
 
 type Props = {
-  onLogin: (username: string, password: string) => boolean
+  onLogin: (username: string, password: string) => Promise<boolean>
 }
 
 export default function Login({ onLogin }: Props) {
@@ -13,25 +13,39 @@ export default function Login({ onLogin }: Props) {
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     if (!username.trim() || !password) {
       setError('Please enter username and password.')
       return
     }
+
     setLoading(true)
-    const success = onLogin(username.trim(), password)
-    setLoading(false)
-    if (!success) {
-      setError('Invalid username or password.')
+
+    // Artificial delay to ensure the loading screen is visible (1.5 seconds minimum)
+    const minDelay = new Promise(resolve => setTimeout(resolve, 1500));
+
+    try {
+      const [success] = await Promise.all([
+        onLogin(username.trim(), password),
+        minDelay
+      ]);
+
+      if (!success) {
+        setError('Invalid username or password.')
+      }
+    } catch (err) {
+      setError('An unexpected error occurred.')
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
     <div className="login-page">
       <div className="login-bg" />
-      <div className="login-window">
+      <div className="login-window animate-scale-in">
         <div className="login-window-header">
           <div className="login-logo-circle">
             <img src={logo} alt="City Logo" className="login-logo-img" />
@@ -88,6 +102,16 @@ export default function Login({ onLogin }: Props) {
           </form>
         </div>
       </div>
+
+      {loading && (
+        <div className="login-overlay">
+          <div className="login-overlay-content">
+            <div className="login-spinner-large" />
+            <p className="login-overlay-text">Authenticating...</p>
+            <p className="login-overlay-sub">Please wait while we verify your credentials</p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

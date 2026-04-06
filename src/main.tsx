@@ -11,6 +11,24 @@ import ViewData from './ViewData'
 import Reports from './Reports'
 import AdminSettings from './AdminSettings'
 
+/** Wrapper that redirects if user lacks the required permission */
+function Guard({ permission, children }: { permission: string; children: React.ReactNode }) {
+  const { hasPermission } = useAuth()
+  if (!hasPermission(permission)) {
+    return <Navigate to="/no-access" replace />
+  }
+  return <>{children}</>
+}
+
+function NoAccess() {
+  return (
+    <div style={{ maxWidth: 480, margin: '80px auto', textAlign: 'center', padding: 24 }}>
+      <h2 style={{ color: '#b91c1c', marginBottom: 8 }}>Access Restricted</h2>
+      <p style={{ color: '#6b7280' }}>You do not have permission to view this page. Contact your administrator to request access.</p>
+    </div>
+  )
+}
+
 function AppRoutes() {
   const { user, isReady, login, isPostLoginLoading } = useAuth()
   if (!isReady) return <div className="app-loading">Loading…</div>
@@ -27,11 +45,12 @@ function AppRoutes() {
     <Routes>
       <Route path="/login" element={<Navigate to="/" replace />} />
       <Route element={<Layout />}>
-        <Route path="/" element={<TechWorkSlip />} />
-        <Route path="/drafts" element={<Drafts />} />
-        <Route path="/data" element={<ViewData />} />
-        <Route path="/reports" element={<Reports />} />
-        <Route path="/admin" element={<AdminSettings />} />
+        <Route path="/" element={<Guard permission="work_slip"><TechWorkSlip /></Guard>} />
+        <Route path="/drafts" element={<Guard permission="drafts"><Drafts /></Guard>} />
+        <Route path="/data" element={<Guard permission="view_data"><ViewData /></Guard>} />
+        <Route path="/reports" element={<Guard permission="reports"><Reports /></Guard>} />
+        <Route path="/admin" element={<Guard permission="admin"><AdminSettings /></Guard>} />
+        <Route path="/no-access" element={<NoAccess />} />
       </Route>
     </Routes>
   )

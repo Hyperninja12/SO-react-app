@@ -3,6 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieCha
 import { getSlips } from './store.ts'
 import { getRequestCategory, getQuarterFromDate } from './constants.ts'
 import type { WorkSlipEntry } from './types.ts'
+import { useAuth } from './AuthContext'
 import './Reports.css'
 
 const PIE_COLORS = ['#166534', '#1e40af', '#7c3aed', '#b45309', '#0d9488', '#be123c', '#4f46e5', '#059669']
@@ -53,6 +54,10 @@ function getSection(slip: WorkSlipEntry): 0 | 1 | null {
 }
 
 export default function Reports() {
+  const { user } = useAuth()
+  const role = user?.role?.toLowerCase() || ''
+  const isAdmin = role === 'admin' || role === 'superadmin'
+
   const [slips, setSlips] = useState<WorkSlipEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [reportYear, setReportYear] = useState(() => new Date().getFullYear())
@@ -151,8 +156,9 @@ export default function Reports() {
 
       for (const r of reports) {
         const rowIndex = getReportRowIndex(r.request || r.actionDone)
-        if (rowIndex === null) continue
-        count[section][rowIndex][col] += 1
+        if (rowIndex !== null) {
+          count[section][rowIndex][col] += 1
+        }
       }
     }
 
@@ -165,6 +171,7 @@ export default function Reports() {
       const total = count[0][r].reduce((s, n) => s + n, 0)
       rows.push([REPORT_ROW_LABELS[r], ...count[0][r].map(String), String(total)])
     }
+    
     rows.push(['Interagency Assistance (DEP-ED, BARANGAY\'S, PAO, RTC, BJMP, PNP)', ...monthLabels, 'TOTAL'])
     for (let r = 0; r < 5; r++) {
       const total = count[1][r].reduce((s, n) => s + n, 0)
@@ -201,14 +208,16 @@ export default function Reports() {
             ))}
           </select>
         </label>
-        <button
-          type="button"
-          className="filter-btn download-btn"
-          onClick={downloadTotals}
-          disabled={slips.length === 0}
-        >
-          Download reports by month (Excel/CSV)
-        </button>
+        {isAdmin && (
+          <button
+            type="button"
+            className="filter-btn download-btn"
+            onClick={downloadTotals}
+            disabled={slips.length === 0}
+          >
+            Download reports by month (Excel/CSV)
+          </button>
+        )}
       </div>
 
       <div className="summary-cards summary-cards-top">

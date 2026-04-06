@@ -98,13 +98,34 @@
   position: absolute;
   right: 0;
   top: calc(100% + 8px);
-  min-width: 140px;
+  min-width: 180px;
   background: #fff;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
   box-shadow: 0 12px 22px rgba(15, 23, 42, 0.12);
   padding: 6px;
   z-index: 60;
+}
+
+.navbar-profile-info {
+  padding: 8px 10px 6px;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.navbar-profile-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.navbar-profile-role {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
 }
 
 .navbar-logout {

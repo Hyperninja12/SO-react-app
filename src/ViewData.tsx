@@ -254,7 +254,7 @@ export default function ViewData() {
   if (loading) return <div className="view-data"><p className="empty-msg">Loading…</p></div>
 
   return (
-    <div className="view-data">
+    <div className="view-data animate-fade-in">
       <h1 className="page-title">All Work Slip Data</h1>
 
       <div className="view-data-toolbar">
@@ -322,7 +322,7 @@ export default function ViewData() {
             </thead>
             <tbody>
               {filtered.map((s) => (
-                <tr key={s.id}>
+                <tr key={s.id} className="animate-fade-in">
                   <td>{s.soNumber}</td>
                   <td>{s.date}</td>
                   <td>{quarterLabel(s)}</td>
@@ -346,8 +346,8 @@ export default function ViewData() {
       )}
 
       {editingId && (
-        <div className="edit-modal-overlay" onClick={() => setEditingId(null)}>
-          <div className="edit-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="edit-modal-overlay animate-fade-in" onClick={() => setEditingId(null)}>
+          <div className="edit-modal animate-scale-in" onClick={(e) => e.stopPropagation()}>
             <div className="edit-modal-header">
               <h2>Edit Work Slip</h2>
               <button type="button" className="edit-modal-close" onClick={() => setEditingId(null)} aria-label="Close">×</button>

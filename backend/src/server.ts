@@ -6,6 +6,7 @@ import cors from 'cors';
 import { initializeDatabase } from './database.js';
 import { createSlipRoutes } from './routes/slips.js';
 import { createAdminRoutes } from './routes/admin.js';
+import { createAuthRoutes } from './routes/auth.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -25,6 +26,7 @@ async function startServer() {
 
   app.use('/api', createSlipRoutes(db));
   app.use('/api', createAdminRoutes(db));
+  app.use('/api', createAuthRoutes(db));
 
   const distPath = path.join(__dirname, '..', '..', 'dist');
   app.use(express.static(distPath));

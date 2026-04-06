@@ -2,12 +2,12 @@ import { useState, useMemo, useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import logo from "./assets/logo.jpg";
 import { saveSlip, saveDraft, getDraftById, getNextSONumber, getCurrentSOYear } from './store.ts'
-import { 
-  OFFICES_IN_HOUSE, 
-  OFFICES_ON_SITE, 
-  OFFICES_INTERAGENCY, 
-  BARANGAY_OFFICES, 
-  REQUEST_TYPES, 
+import {
+  OFFICES_IN_HOUSE,
+  OFFICES_ON_SITE,
+  OFFICES_INTERAGENCY,
+  BARANGAY_OFFICES,
+  REQUEST_TYPES,
   TECHNICIANS,
   PRINTER_BRANDS,
   QUARTER_OPTIONS,
@@ -119,7 +119,7 @@ export default function TechWorkSlip() {
   }, [date])
 
   const areaSelected = areaInHouse || areaOnSite || areaInteragency
-  
+
   const availableOffices = useMemo(() => {
     const list: string[] = []
     if (areaInHouse) list.push(...OFFICES_IN_HOUSE)
@@ -301,251 +301,251 @@ export default function TechWorkSlip() {
 
   return (
     <div className="gradient-border-element">
-      <div className="tech-work-slip">
-      <header className="slip-header">
-        <div className="header-inner">
-           <div className="logo-container">
+      <div className="tech-work-slip animate-slide-up">
+        <header className="slip-header">
+          <div className="header-inner">
+            <div className="logo-container">
               <img src={logo} alt="City Logo" className="logo-image" />
-          </div>
-          <div className="header-center">
-            <div className="org-line">REPUBLIC OF THE PHILIPPINES</div>
-            <div className="org-line">CITY OF TAGUM</div>
-            <div className="org-line org-name">CITY INFORMATION AND COMMUNICATION TECHNOLOGY MANAGEMENT OFFICE</div>
-          </div>
-          <div className="so-number">
-            SO No - Tech: <div className="so-input-wrap">
-              <span className="so-yy-prefix">{effectiveYY || '…'}-</span>
-              <input
-                type="text"
-                value={soSequencePart}
-                onChange={(e) => setSoSequencePart(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                onBlur={handleBlur('soNumber')}
-                placeholder="000001"
-                maxLength={6}
-                className="so-input so-sequence-input"
-              />
             </div>
-          </div>
-        </div>
-        <div className="header-divider" />
-      </header>
-
-      <main className="slip-body">
-        <div className="fields-row fields-row-date-quarter">
-          <div className="field-box field-date">
-            <label className="field">
-              <span className="field-label">DATE</span>
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                onBlur={handleBlur('date')}
-                className={`date-input ${errors.date ? 'error' : ''}`}
-                min="2020-01-01"
-                max="2030-12-31"
-              />
-              {errors.date && <span className="field-error">{errors.date}</span>}
-            </label>
-          </div>
-          <div className="quarter-box">
-            <span className="quarter-label">QUARTER</span>
-            <select value={quarter} onChange={(e) => setQuarter(Number(e.target.value) as 1 | 2 | 3 | 4)} className="quarter-select">
-              {QUARTER_OPTIONS.map((q) => (
-                <option key={q.value} value={q.value}>{q.label}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <div className="fields-row area-row">
-          <div className="field-box area-group">
-            <span className="field-label">Area</span>
-            <label className="checkbox-label">
-              <input type="radio" name="area" checked={areaInHouse} onChange={() => { setAreaInHouse(true); setAreaOnSite(false); setAreaInteragency(false); }} onBlur={handleBlur('area')} />
-              In House (within City Hall premises)
-            </label>
-            <label className="checkbox-label">
-              <input type="radio" name="area" checked={areaOnSite} onChange={() => { setAreaOnSite(true); setAreaInHouse(false); setAreaInteragency(false); }} onBlur={handleBlur('area')} />
-              On Site (outside government offices and barangays)
-            </label>
-            <label className="checkbox-label">
-              <input type="radio" name="area" checked={areaInteragency} onChange={() => { setAreaInteragency(true); setAreaInHouse(false); setAreaOnSite(false); }} onBlur={handleBlur('area')} />
-              Interagency
-            </label>
-            {errors.area && <span className="field-error">{errors.area}</span>}
-          </div>
-          <div className="field-box field offices-field" ref={officesRef}>
-            <span className="field-label">OFFICES</span>
-            <button
-              type="button"
-              className={`offices-dropdown ${errors.offices ? 'error' : ''}`}
-              onClick={() => setOfficesOpen((o) => !o)}
-              onBlur={handleBlur('offices')}
-            >
-              {selectedOffices.length === 0 ? 'Select offices…' : `${selectedOffices.length} selected`}
-            </button>
-            {errors.offices && <span className="field-error">{errors.offices}</span>}
-            {officesOpen && (
-              <div className="offices-dropdown-panel">
-                {availableOffices.length === 0 ? (
-                  <div className="offices-empty">Select an area first</div>
-                ) : (
-                  availableOffices.map((office) => (
-                    <label key={office} className="offices-option">
-                      <input type="checkbox" checked={selectedOffices.includes(office)} onChange={() => toggleOffice(office)} />
-                      {office}
-                    </label>
-                  ))
-                )}
-              </div>
-            )}
-          </div>
-          {selectedOffices.includes('DEP-ED') && (
-            <div className="field-box field school-name-field">
-              <label className="field">
-                <span className="field-label">School name (DEP-ED)</span>
+            <div className="header-center">
+              <div className="org-line">REPUBLIC OF THE PHILIPPINES</div>
+              <div className="org-line">CITY OF TAGUM</div>
+              <div className="org-line org-name">CITY INFORMATION AND COMMUNICATION TECHNOLOGY MANAGEMENT OFFICE</div>
+            </div>
+            <div className="so-number">
+              SO No - Tech: <div className="so-input-wrap">
+                <span className="so-yy-prefix">{effectiveYY || '…'}-</span>
                 <input
                   type="text"
-                  value={schoolName}
-                  onChange={(e) => setSchoolName(e.target.value)}
-                  placeholder="e.g. Tagum City National High School"
-                  className="school-name-input"
+                  value={soSequencePart}
+                  onChange={(e) => setSoSequencePart(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  onBlur={handleBlur('soNumber')}
+                  placeholder="000001"
+                  maxLength={6}
+                  className="so-input so-sequence-input"
                 />
-              </label>
-            </div>
-          )}
-          <div className="field-box">
-            <label className="field">
-              <span className="field-label">Time Started</span>
-              <input type="time" value={timeStarted} onChange={(e) => setTimeStarted(e.target.value)} onBlur={handleBlur('timeStarted')} className={errors.timeStarted ? 'error' : ''} />
-              {errors.timeStarted && <span className="field-error">{errors.timeStarted}</span>}
-            </label>
-          </div>
-          <div className="field-box">
-            <label className="field">
-              <span className="field-label">Time Ended</span>
-              <input type="time" value={timeEnded} onChange={(e) => setTimeEnded(e.target.value)} onBlur={handleBlur('timeEnded')} className={errors.timeEnded ? 'error' : ''} />
-              {errors.timeEnded && <span className="field-error">{errors.timeEnded}</span>}
-            </label>
-          </div>
-        </div>
-
-        <section className="technical-report">
-          <h3 className="report-title">TECHNICAL REPORT</h3>
-
-          {reportRows.map((row, index) => (
-            <div key={row.id} className="report-row">
-              <div className="report-row-header">
-                <span className="report-row-title">Report {index + 1}</span>
-                {reportRows.length > 1 && (
-                  <button type="button" className="report-row-remove" onClick={() => removeReportRow(row.id)} aria-label="Remove report">Remove</button>
-                )}
               </div>
-              <label className="field block">
-                <span className="field-label">REQUEST</span>
-                <select
-                  value={row.request}
-                  onChange={(e) => updateReportRow(row.id, 'request', e.target.value)}
-                  onBlur={handleBlur('actionDone')}
-                  className={index === 0 && errors.actionDone ? 'error request-select' : 'request-select'}
-                >
-                  <option value="" disabled>Select request type…</option>
-                  {REQUEST_TYPES.map((opt) => (
-                    <option key={opt} value={opt}>{opt}</option>
-                  ))}
-                </select>
-                {index === 0 && errors.actionDone && <span className="field-error">{errors.actionDone}</span>}
+            </div>
+          </div>
+          <div className="header-divider" />
+        </header>
+
+        <main className="slip-body">
+          <div className="fields-row fields-row-date-quarter">
+            <div className="field-box field-date">
+              <label className="field">
+                <span className="field-label">DATE</span>
+                <input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  onBlur={handleBlur('date')}
+                  className={`date-input ${errors.date ? 'error' : ''}`}
+                  min="2020-01-01"
+                  max="2030-12-31"
+                />
+                {errors.date && <span className="field-error">{errors.date}</span>}
               </label>
-              {row.request === 'Printer isolation (reset,installation, printer sharing, and checking)' && index === 0 && (
-                <>
-                  <label className="field block">
-                    <span className="field-label">PRINTER BRAND</span>
-                    <select value={printerBrand} onChange={(e) => setPrinterBrand(e.target.value)} className="printer-select">
-                      <option value="">Select printer brand…</option>
-                      {PRINTER_BRANDS.map((brand) => (
-                        <option key={brand} value={brand}>{brand}</option>
-                      ))}
-                    </select>
-                  </label>
-                  <label className="field block">
-                    <span className="field-label">PRINTER MODEL</span>
-                    <input type="text" value={printerModel} onChange={(e) => setPrinterModel(e.target.value)} placeholder="Enter printer model" className="printer-model-input" />
-                  </label>
-                  </>
-              )}
-                    
-                    <label className="field block">
-                      <span className="field-label">ACTION DONE</span>
-                      <textarea
-                        value={row.actionDone}
-                        onChange={(e) => updateReportRow(row.id, 'actionDone', e.target.value)}
-                        onBlur={index === 0 ? handleBlur('actionDoneText') : undefined}
-                        rows={3}
-                        className={index === 0 && errors.actionDoneText ? 'error' : ''}
-                      />
-                      {index === 0 && errors.actionDoneText && <span className="field-error">{errors.actionDoneText}</span>}
-                    </label>
-                    <label className="field block">
-                      <span className="field-label">RECOMMENDATION</span>
-                      <textarea
-                        value={row.recommendation}
-                        onChange={(e) => updateReportRow(row.id, 'recommendation', e.target.value)}
-                        rows={3}
-                      />
-                    </label>
-
             </div>
-          ))}
-
-          <button type="button" className="add-report-btn" onClick={addReportRow}>+ Add another report</button>
-        </section>
-
-        <footer className="slip-footer">
-          <div className="signature-row">
-            <div className="signature-block">
-              <span className="field-label">Client (Full Name)</span>
-              <input type="text" value={requesterSignature} onChange={(e) => setRequesterSignature(e.target.value)} className="signature-input" />
-            </div>
-            <div className="signature-block">
-              <span className="field-label">Technician</span>
-              <select
-                value={technicianName}
-                onChange={(e) => setTechnicianName(e.target.value)}
-                onBlur={handleBlur('technician')}
-                className={`signature-select ${errors.technician ? 'error' : ''}`}
-              >
-                <option value="" disabled>Select Technician</option>
-                {TECHNICIANS.map((tech) => (
-                  <option key={tech} value={tech}>{tech}</option>
+            <div className="quarter-box">
+              <span className="quarter-label">QUARTER</span>
+              <select value={quarter} onChange={(e) => setQuarter(Number(e.target.value) as 1 | 2 | 3 | 4)} className="quarter-select">
+                {QUARTER_OPTIONS.map((q) => (
+                  <option key={q.value} value={q.value}>{q.label}</option>
                 ))}
               </select>
-              {errors.technician && <span className="field-error">{errors.technician}</span>}
             </div>
           </div>
 
-        </footer>
-      </main>
+          <div className="fields-row area-row">
+            <div className="field-box area-group">
+              <span className="field-label">Area</span>
+              <label className="checkbox-label">
+                <input type="radio" name="area" checked={areaInHouse} onChange={() => { setAreaInHouse(true); setAreaOnSite(false); setAreaInteragency(false); }} onBlur={handleBlur('area')} />
+                In House (within City Hall premises)
+              </label>
+              <label className="checkbox-label">
+                <input type="radio" name="area" checked={areaOnSite} onChange={() => { setAreaOnSite(true); setAreaInHouse(false); setAreaInteragency(false); }} onBlur={handleBlur('area')} />
+                On Site (outside government offices and barangays)
+              </label>
+              <label className="checkbox-label">
+                <input type="radio" name="area" checked={areaInteragency} onChange={() => { setAreaInteragency(true); setAreaInHouse(false); setAreaOnSite(false); }} onBlur={handleBlur('area')} />
+                Interagency
+              </label>
+              {errors.area && <span className="field-error">{errors.area}</span>}
+            </div>
+            <div className="field-box field offices-field" ref={officesRef}>
+              <span className="field-label">OFFICES</span>
+              <button
+                type="button"
+                className={`offices-dropdown ${errors.offices ? 'error' : ''}`}
+                onClick={() => setOfficesOpen((o) => !o)}
+                onBlur={handleBlur('offices')}
+              >
+                {selectedOffices.length === 0 ? 'Select offices…' : `${selectedOffices.length} selected`}
+              </button>
+              {errors.offices && <span className="field-error">{errors.offices}</span>}
+              {officesOpen && (
+                <div className="offices-dropdown-panel">
+                  {availableOffices.length === 0 ? (
+                    <div className="offices-empty">Select an area first</div>
+                  ) : (
+                    availableOffices.map((office) => (
+                      <label key={office} className="offices-option">
+                        <input type="checkbox" checked={selectedOffices.includes(office)} onChange={() => toggleOffice(office)} />
+                        {office}
+                      </label>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+            {selectedOffices.includes('DEP-ED') && (
+              <div className="field-box field school-name-field">
+                <label className="field">
+                  <span className="field-label">School name (DEP-ED)</span>
+                  <input
+                    type="text"
+                    value={schoolName}
+                    onChange={(e) => setSchoolName(e.target.value)}
+                    placeholder="e.g. Tagum City National High School"
+                    className="school-name-input"
+                  />
+                </label>
+              </div>
+            )}
+            <div className="field-box">
+              <label className="field">
+                <span className="field-label">Time Started</span>
+                <input type="time" value={timeStarted} onChange={(e) => setTimeStarted(e.target.value)} onBlur={handleBlur('timeStarted')} className={errors.timeStarted ? 'error' : ''} />
+                {errors.timeStarted && <span className="field-error">{errors.timeStarted}</span>}
+              </label>
+            </div>
+            <div className="field-box">
+              <label className="field">
+                <span className="field-label">Time Ended</span>
+                <input type="time" value={timeEnded} onChange={(e) => setTimeEnded(e.target.value)} onBlur={handleBlur('timeEnded')} className={errors.timeEnded ? 'error' : ''} />
+                {errors.timeEnded && <span className="field-error">{errors.timeEnded}</span>}
+              </label>
+            </div>
+          </div>
 
-      <div className="print-actions no-print">
-        {submitMessage === 'success' && <span className="save-msg">Submitted successfully.</span>}
-        {submitMessage === 'error' && <span className="save-msg save-msg-error">{submitError || 'Failed to submit. Is the server running?'}</span>}
-        {draftMessage && <span className="save-msg">Draft saved.</span>}
-        <button
-          type="button"
-          onClick={handleSubmit}
-          className="submit-btn"
-          disabled={submitting || !canSubmit}
-        >
-          {submitting ? (
-            <span className="submit-btn-loading">
-              <span className="submit-spinner" aria-hidden /> Submitting…
-            </span>
-          ) : (
-            'Submit'
-          )}
-        </button>
-        <button type="button" onClick={handleSaveDraft} className="draft-btn">Save as draft</button>
-      </div>
+          <section className="technical-report">
+            <h3 className="report-title">TECHNICAL REPORT</h3>
+
+            {reportRows.map((row, index) => (
+              <div key={row.id} className="report-row animate-fade-in delay-100">
+                <div className="report-row-header">
+                  <span className="report-row-title">Report {index + 1}</span>
+                  {reportRows.length > 1 && (
+                    <button type="button" className="report-row-remove" onClick={() => removeReportRow(row.id)} aria-label="Remove report">Remove</button>
+                  )}
+                </div>
+                <label className="field block">
+                  <span className="field-label">REQUEST</span>
+                  <select
+                    value={row.request}
+                    onChange={(e) => updateReportRow(row.id, 'request', e.target.value)}
+                    onBlur={handleBlur('actionDone')}
+                    className={index === 0 && errors.actionDone ? 'error request-select' : 'request-select'}
+                  >
+                    <option value="" disabled>Select request type…</option>
+                    {REQUEST_TYPES.map((opt) => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                  {index === 0 && errors.actionDone && <span className="field-error">{errors.actionDone}</span>}
+                </label>
+                {row.request === 'Printer isolation (reset,installation, printer sharing, and checking)' && index === 0 && (
+                  <>
+                    <label className="field block">
+                      <span className="field-label">PRINTER BRAND</span>
+                      <select value={printerBrand} onChange={(e) => setPrinterBrand(e.target.value)} className="printer-select">
+                        <option value="">Select printer brand…</option>
+                        {PRINTER_BRANDS.map((brand) => (
+                          <option key={brand} value={brand}>{brand}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="field block">
+                      <span className="field-label">PRINTER MODEL</span>
+                      <input type="text" value={printerModel} onChange={(e) => setPrinterModel(e.target.value)} placeholder="Enter printer model" className="printer-model-input" />
+                    </label>
+                  </>
+                )}
+
+                <label className="field block">
+                  <span className="field-label">ACTION DONE</span>
+                  <textarea
+                    value={row.actionDone}
+                    onChange={(e) => updateReportRow(row.id, 'actionDone', e.target.value)}
+                    onBlur={index === 0 ? handleBlur('actionDoneText') : undefined}
+                    rows={3}
+                    className={index === 0 && errors.actionDoneText ? 'error' : ''}
+                  />
+                  {index === 0 && errors.actionDoneText && <span className="field-error">{errors.actionDoneText}</span>}
+                </label>
+                <label className="field block">
+                  <span className="field-label">RECOMMENDATION</span>
+                  <textarea
+                    value={row.recommendation}
+                    onChange={(e) => updateReportRow(row.id, 'recommendation', e.target.value)}
+                    rows={3}
+                  />
+                </label>
+
+              </div>
+            ))}
+
+            <button type="button" className="add-report-btn" onClick={addReportRow}>+ Add another report</button>
+          </section>
+
+          <footer className="slip-footer">
+            <div className="signature-row">
+              <div className="signature-block">
+                <span className="field-label">Client (Full Name)</span>
+                <input type="text" value={requesterSignature} onChange={(e) => setRequesterSignature(e.target.value)} className="signature-input" />
+              </div>
+              <div className="signature-block">
+                <span className="field-label">Technician</span>
+                <select
+                  value={technicianName}
+                  onChange={(e) => setTechnicianName(e.target.value)}
+                  onBlur={handleBlur('technician')}
+                  className={`signature-select ${errors.technician ? 'error' : ''}`}
+                >
+                  <option value="" disabled>Select Technician</option>
+                  {TECHNICIANS.map((tech) => (
+                    <option key={tech} value={tech}>{tech}</option>
+                  ))}
+                </select>
+                {errors.technician && <span className="field-error">{errors.technician}</span>}
+              </div>
+            </div>
+
+          </footer>
+        </main>
+
+        <div className="print-actions no-print">
+          {submitMessage === 'success' && <span className="save-msg">Submitted successfully.</span>}
+          {submitMessage === 'error' && <span className="save-msg save-msg-error">{submitError || 'Failed to submit. Is the server running?'}</span>}
+          {draftMessage && <span className="save-msg">Draft saved.</span>}
+          <button
+            type="button"
+            onClick={handleSubmit}
+            className="submit-btn"
+            disabled={submitting || !canSubmit}
+          >
+            {submitting ? (
+              <span className="submit-btn-loading">
+                <span className="submit-spinner" aria-hidden /> Submitting…
+              </span>
+            ) : (
+              'Submit'
+            )}
+          </button>
+          <button type="button" onClick={handleSaveDraft} className="draft-btn">Save as draft</button>
+        </div>
       </div>
     </div>
   )
