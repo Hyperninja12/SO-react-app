@@ -440,7 +440,6 @@ export default function AdminSettings() {
                     <th>Timestamp</th>
                     <th>User</th>
                     <th>Action</th>
-                    <th>IP Address</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -453,7 +452,6 @@ export default function AdminSettings() {
                            {log.action.toUpperCase()}
                         </span>
                       </td>
-                      <td>{log.ipAddress}</td>
                     </tr>
                   ))}
                 </tbody>

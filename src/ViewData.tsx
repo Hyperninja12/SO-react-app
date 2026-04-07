@@ -48,7 +48,9 @@ const emptyForm: Omit<WorkSlipEntry, 'id' | 'createdAt'> = {
 }
 
 export default function ViewData() {
-  const { isSuperAdmin } = useAuth()
+  const { isSuperAdmin, user } = useAuth()
+  const role = user?.role?.toLowerCase() || ''
+  const isAdmin = role === 'admin' || isSuperAdmin
   const [refresh, setRefresh] = useState(0)
   const [slips, setSlips] = useState<WorkSlipEntry[]>([])
   const [loading, setLoading] = useState(true)
@@ -295,9 +297,11 @@ export default function ViewData() {
             ))}
           </select>
         </div>
-        <button type="button" className="view-data-download-btn" onClick={downloadReport} disabled={slips.length === 0}>
-          Download Report (Excel/CSV)
-        </button>
+        {isAdmin && (
+          <button type="button" className="view-data-download-btn" onClick={downloadReport} disabled={slips.length === 0}>
+            Download Report (Excel/CSV)
+          </button>
+        )}
       </div>
 
       {slips.length === 0 ? (

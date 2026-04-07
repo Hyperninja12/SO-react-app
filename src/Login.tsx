@@ -89,7 +89,6 @@ export default function Login({ onLogin }: Props) {
                 {showPassword ? '👁️' : '👁️‍🗨️'}
               </button>
             </label>
-            {error && <p className="login-error">{error}</p>}
             <button type="submit" className="login-submit" disabled={loading}>
               {loading ? (
                 <span className="login-submit-loading">
@@ -109,6 +108,23 @@ export default function Login({ onLogin }: Props) {
             <div className="login-spinner-large" />
             <p className="login-overlay-text">Authenticating...</p>
             <p className="login-overlay-sub">Please wait while we verify your credentials</p>
+          </div>
+        </div>
+      )}
+
+      {error && (
+        <div className="login-error-overlay" onClick={() => setError('')}>
+          <div className="login-error-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="login-error-icon">⚠️</div>
+            <h3 className="login-error-title">Login Failed</h3>
+            <p className="login-error-text">{error}</p>
+            <button 
+              type="button" 
+              className="login-error-btn" 
+              onClick={() => setError('')}
+            >
+              Try Again
+            </button>
           </div>
         </div>
       )}

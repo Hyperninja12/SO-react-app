@@ -1003,7 +1003,8 @@
 }
 
 /* Field Labels (Small, Uppercase, Gray) */
-.field-label, .quarter-label {
+.field-label,
+.quarter-label {
   font-size: 11px !important;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -1014,7 +1015,11 @@
 }
 
 /* Section Containers (Softer shadow, white bg, no more bright green borders) */
-.field-box, .quarter-box, .report-row, .signature-row, .approval-block {
+.field-box,
+.quarter-box,
+.report-row,
+.signature-row,
+.approval-block {
   background: #ffffff !important;
   border: 1px solid #f3f4f6 !important;
   border-radius: 12px !important;
