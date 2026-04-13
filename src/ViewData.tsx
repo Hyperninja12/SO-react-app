@@ -256,41 +256,47 @@ export default function ViewData() {
   if (loading) return <div className="view-data"><p className="empty-msg">Loading…</p></div>
 
   return (
-    <div className="view-data animate-fade-in">
-      <h1 className="page-title">All Work Slip Data</h1>
+    <div className="dashboard-layout animate-fade-in">
+      {/* Hero Header */}
+      <div className="viewdata-hero">
+        <div className="viewdata-hero-content">
+          <h1 className="viewdata-hero-title">📋 All Work Slip Data</h1>
+          <p className="viewdata-hero-subtitle">Browse, search, and manage all submitted work slips</p>
+        </div>
+      </div>
 
-      <div className="view-data-toolbar">
-        <div className="search-wrap">
-          <label className="toolbar-label">Search</label>
+      <div className="viewdata-filters">
+        <div className="form-group" style={{ marginBottom: 0, flex: 1, minWidth: '240px' }}>
+          <label className="form-label">🔍 Search</label>
           <input
             type="text"
             placeholder="SO No, date, office, request…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="search-input"
+            className="form-input"
           />
         </div>
-        <div className="filter-wrap">
-          <label className="toolbar-label">Area</label>
-          <select value={filterArea} onChange={(e) => setFilterArea(e.target.value)} className="filter-select">
+        <div className="form-group" style={{ marginBottom: 0, minWidth: '150px' }}>
+          <label className="form-label">📍 Area</label>
+          <select value={filterArea} onChange={(e) => setFilterArea(e.target.value)} className="form-select">
             <option value="">All</option>
             <option value="In House">In House</option>
             <option value="On Site">On Site</option>
             <option value="Interagency">Interagency</option>
           </select>
         </div>
-        <div className="filter-wrap">
-          <label className="toolbar-label">Office</label>
-          <select value={filterOffice} onChange={(e) => setFilterOffice(e.target.value)} className="filter-select">
+        <div className="form-group" style={{ marginBottom: 0, minWidth: '150px' }}>
+          <label className="form-label">🏢 Office</label>
+          <select value={filterOffice} onChange={(e) => setFilterOffice(e.target.value)} className="form-select">
             <option value="">All</option>
             {allOffices.map((o) => (
               <option key={o} value={o}>{o}</option>
             ))}
           </select>
         </div>
-        <div className="filter-wrap">
-          <label className="toolbar-label">Quarter</label>
-          <select value={filterQuarter} onChange={(e) => setFilterQuarter(e.target.value)} className="filter-select">
+        <div className="form-group" style={{ marginBottom: 0, minWidth: '150px' }}>
+          <label className="form-label">📅 Quarter</label>
+          <select value={filterQuarter} onChange={(e) => setFilterQuarter(e.target.value)} className="form-select">
             <option value="">All</option>
             {QUARTER_OPTIONS.map((q) => (
               <option key={q.value} value={q.value}>{q.label}</option>
@@ -298,8 +304,8 @@ export default function ViewData() {
           </select>
         </div>
         {isAdmin && (
-          <button type="button" className="view-data-download-btn" onClick={downloadReport} disabled={slips.length === 0}>
-            Download Report (Excel/CSV)
+          <button type="button" className="viewdata-download-btn" onClick={downloadReport} disabled={slips.length === 0}>
+            ⬇ Download
           </button>
         )}
       </div>
@@ -309,7 +315,7 @@ export default function ViewData() {
       ) : filtered.length === 0 ? (
         <p className="empty-msg">No results match your search or filters.</p>
       ) : (
-        <div className="data-table-wrap">
+        <div className="dashboard-card" style={{ overflow: 'auto', maxHeight: 'min(70vh, 600px)' }}>
           <table className="data-table">
             <thead>
               <tr>
@@ -352,120 +358,120 @@ export default function ViewData() {
       {editingId && (
         <div className="edit-modal-overlay animate-fade-in" onClick={() => setEditingId(null)}>
           <div className="edit-modal animate-scale-in" onClick={(e) => e.stopPropagation()}>
-            <div className="edit-modal-header">
-              <h2>Edit Work Slip</h2>
+            <div className="edit-modal-header" style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-color)' }}>
+              <h2 className="card-title">Edit Work Slip</h2>
               <button type="button" className="edit-modal-close" onClick={() => setEditingId(null)} aria-label="Close">×</button>
             </div>
             <form className="edit-modal-body" onSubmit={(e) => { e.preventDefault(); handleSaveEdit() }}>
-              <div className="edit-form-row">
-                <label className="edit-field">
-                  <span className="edit-label">SO Number</span>
-                  <input type="text" value={form.soNumber} onChange={(e) => setForm((f) => ({ ...f, soNumber: e.target.value }))} />
-                </label>
-                <label className="edit-field">
-                  <span className="edit-label">Date</span>
-                  <input type="date" value={form.date} onChange={(e) => setForm((f) => ({ ...f, date: e.target.value, quarter: getQuarterFromDate(e.target.value) }))} />
-                </label>
-                <label className="edit-field">
-                  <span className="edit-label">Quarter</span>
-                  <select value={form.quarter ?? 1} onChange={(e) => setForm((f) => ({ ...f, quarter: Number(e.target.value) as 1 | 2 | 3 | 4 }))}>
+              <div className="dashboard-grid" style={{ gap: '1rem', marginBottom: '1rem' }}>
+                <div className="form-group">
+                  <label className="form-label">SO Number</label>
+                  <input type="text" className="form-input" value={form.soNumber} onChange={(e) => setForm((f) => ({ ...f, soNumber: e.target.value }))} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Date</label>
+                  <input type="date" className="form-input" value={form.date} onChange={(e) => setForm((f) => ({ ...f, date: e.target.value, quarter: getQuarterFromDate(e.target.value) }))} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Quarter</label>
+                  <select className="form-select" value={form.quarter ?? 1} onChange={(e) => setForm((f) => ({ ...f, quarter: Number(e.target.value) as 1 | 2 | 3 | 4 }))}>
                     {QUARTER_OPTIONS.map((q) => (
                       <option key={q.value} value={q.value}>{q.label}</option>
                     ))}
                   </select>
-                </label>
-              </div>
-              <div className="edit-form-row edit-area-row">
-                <span className="edit-label">Area</span>
-                <label className="edit-check"><input type="radio" name="edit-area" checked={form.areaInHouse} onChange={() => setForm((f) => ({ ...f, areaInHouse: true, areaOnSite: false, areaInteragency: false }))} /> In House</label>
-                <label className="edit-check"><input type="radio" name="edit-area" checked={form.areaOnSite} onChange={() => setForm((f) => ({ ...f, areaOnSite: true, areaInHouse: false, areaInteragency: false }))} /> On Site</label>
-                <label className="edit-check"><input type="radio" name="edit-area" checked={form.areaInteragency} onChange={() => setForm((f) => ({ ...f, areaInteragency: true, areaInHouse: false, areaOnSite: false }))} /> Interagency</label>
-              </div>
-              <div className="edit-form-row" ref={officesRef}>
-                <div className="edit-field edit-offices-wrap">
-                  <span className="edit-label">Offices</span>
-                  <button type="button" className="edit-offices-btn" onClick={() => setOfficesOpen((o) => !o)}>
-                    {form.offices.length === 0 ? 'Select offices…' : `${form.offices.length} selected`}
-                  </button>
-                  {officesOpen && (
-                    <div className="edit-offices-panel">
-                      {availableOffices.length === 0 ? (
-                        <div className="edit-offices-empty">Select an area first</div>
-                      ) : (
-                        availableOffices.map((o) => (
-                          <label key={o} className="edit-offices-option">
-                            <input type="checkbox" checked={form.offices.includes(o)} onChange={() => toggleOffice(o)} />
-                            {o}
-                          </label>
-                        ))
-                      )}
-                    </div>
-                  )}
                 </div>
               </div>
+
+              <div className="form-group" style={{ marginBottom: '1rem' }}>
+                <span className="form-label" style={{ marginBottom: '0.5rem', display: 'block' }}>Area</span>
+                <div style={{ display: 'flex', gap: '1.5rem' }}>
+                  <label className="edit-check"><input type="radio" name="edit-area" checked={form.areaInHouse} onChange={() => setForm((f) => ({ ...f, areaInHouse: true, areaOnSite: false, areaInteragency: false }))} /> In House</label>
+                  <label className="edit-check"><input type="radio" name="edit-area" checked={form.areaOnSite} onChange={() => setForm((f) => ({ ...f, areaOnSite: true, areaInHouse: false, areaInteragency: false }))} /> On Site</label>
+                  <label className="edit-check"><input type="radio" name="edit-area" checked={form.areaInteragency} onChange={() => setForm((f) => ({ ...f, areaInteragency: true, areaInHouse: false, areaOnSite: false }))} /> Interagency</label>
+                </div>
+              </div>
+
+              <div className="form-group" ref={officesRef} style={{ position: 'relative' }}>
+                <label className="form-label">Offices</label>
+                <button type="button" className="form-select" onClick={() => setOfficesOpen((o) => !o)} style={{ textAlign: 'left' }}>
+                  {form.offices.length === 0 ? 'Select offices…' : `${form.offices.length} selected`}
+                </button>
+                {officesOpen && (
+                  <div className="edit-offices-panel">
+                    {availableOffices.length === 0 ? (
+                      <div className="edit-offices-empty">Select an area first</div>
+                    ) : (
+                      availableOffices.map((o) => (
+                        <label key={o} className="edit-offices-option">
+                          <input type="checkbox" checked={form.offices.includes(o)} onChange={() => toggleOffice(o)} />
+                          {o}
+                        </label>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
+
               {form.offices.includes('DEP-ED') && (
-                <div className="edit-form-row">
-                  <label className="edit-field edit-field-full">
-                    <span className="edit-label">School name (DEP-ED)</span>
-                    <input type="text" value={form.schoolName ?? ''} onChange={(e) => setForm((f) => ({ ...f, schoolName: e.target.value }))} placeholder="e.g. Tagum City National High School" />
-                  </label>
+                <div className="form-group">
+                  <label className="form-label">School name (DEP-ED)</label>
+                  <input type="text" className="form-input" value={form.schoolName ?? ''} onChange={(e) => setForm((f) => ({ ...f, schoolName: e.target.value }))} placeholder="e.g. Tagum City National High School" />
                 </div>
               )}
-              <div className="edit-form-row">
-                <label className="edit-field">
-                  <span className="edit-label">Time Started</span>
-                  <input type="time" value={form.timeStarted} onChange={(e) => setForm((f) => ({ ...f, timeStarted: e.target.value }))} />
-                </label>
-                <label className="edit-field">
-                  <span className="edit-label">Time Ended</span>
-                  <input type="time" value={form.timeEnded} onChange={(e) => setForm((f) => ({ ...f, timeEnded: e.target.value }))} />
-                </label>
+
+              <div className="dashboard-grid" style={{ gap: '1rem', marginBottom: '1.5rem' }}>
+                <div className="form-group">
+                  <label className="form-label">Time Started</label>
+                  <input type="time" className="form-input" value={form.timeStarted} onChange={(e) => setForm((f) => ({ ...f, timeStarted: e.target.value }))} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Time Ended</label>
+                  <input type="time" className="form-input" value={form.timeEnded} onChange={(e) => setForm((f) => ({ ...f, timeEnded: e.target.value }))} />
+                </div>
               </div>
-              <section className="technical-report">
-                <h3 className="report-title">TECHNICAL REPORT</h3>
+
+              <section className="technical-report" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem' }}>
+                <h3 className="card-title" style={{ marginBottom: '1rem' }}>Technical Report</h3>
                 {reportRows.map((row, index) => (
-                  <div key={row.id} className="report-row">
-                    <div className="report-row-header">
-                      <span className="report-row-title">Report {index + 1}</span>
+                  <div key={row.id} className="report-row" style={{ background: 'var(--bg-app)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>
+                    <div className="report-row-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                      <span className="card-title" style={{ fontSize: '1rem' }}>Report {index + 1}</span>
                       {reportRows.length > 1 && (
-                        <button type="button" className="report-row-remove" onClick={() => removeReportRow(row.id)} aria-label="Remove report">Remove</button>
+                        <button type="button" className="report-row-remove" onClick={() => removeReportRow(row.id)} style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}>Remove</button>
                       )}
                     </div>
-                    <label className="edit-field edit-field-full">
-                      <span className="edit-label">Request</span>
-                      <select value={row.request} onChange={(e) => updateReportRow(row.id, 'request', e.target.value)}>
+                    <div className="form-group">
+                      <label className="form-label">Request</label>
+                      <select className="form-select" value={row.request} onChange={(e) => updateReportRow(row.id, 'request', e.target.value)}>
                         <option value="">Select…</option>
-                        {REQUEST_TYPES.map((opt) => (
-                          <option key={opt} value={opt}>{opt}</option>
-                        ))}
+                        {REQUEST_TYPES.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
                       </select>
-                    </label>
-                    <label className="edit-field edit-field-full">
-                      <span className="edit-label">Action Done</span>
-                      <textarea value={row.actionDone} onChange={(e) => updateReportRow(row.id, 'actionDone', e.target.value)} rows={2} />
-                    </label>
-                    <label className="edit-field edit-field-full">
-                      <span className="edit-label">Recommendation</span>
-                      <textarea value={row.recommendation} onChange={(e) => updateReportRow(row.id, 'recommendation', e.target.value)} rows={2} />
-                    </label>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Action Done</label>
+                      <textarea className="form-textarea" value={row.actionDone} onChange={(e) => updateReportRow(row.id, 'actionDone', e.target.value)} rows={2} />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Recommendation</label>
+                      <textarea className="form-textarea" value={row.recommendation} onChange={(e) => updateReportRow(row.id, 'recommendation', e.target.value)} rows={2} />
+                    </div>
                   </div>
                 ))}
-                <button type="button" className="add-report-btn" onClick={addReportRow}>+ Add another report</button>
+                <button type="button" className="add-report-btn" onClick={addReportRow} style={{ padding: '6px 12px', fontSize: '0.875rem', borderRadius: '6px', marginBottom: '1.5rem' }}>+ Add another report</button>
               </section>
-              <div className="edit-form-row">
-                <label className="edit-field">
-                  <span className="edit-label">Requester (Print Name & Signature)</span>
-                  <input type="text" value={form.requesterSignature} onChange={(e) => setForm((f) => ({ ...f, requesterSignature: e.target.value }))} />
-                </label>
-                <label className="edit-field">
-                  <span className="edit-label">Technician</span>
-                  <select value={form.technicianName} onChange={(e) => setForm((f) => ({ ...f, technicianName: e.target.value }))}>
+
+              <div className="dashboard-grid" style={{ gap: '1rem' }}>
+                <div className="form-group">
+                  <label className="form-label">Requester (Print Name & Signature)</label>
+                  <input type="text" className="form-input" value={form.requesterSignature} onChange={(e) => setForm((f) => ({ ...f, requesterSignature: e.target.value }))} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Technician</label>
+                  <select className="form-select" value={form.technicianName} onChange={(e) => setForm((f) => ({ ...f, technicianName: e.target.value }))}>
                     <option value="">Select Technician</option>
-                    {TECHNICIANS.map((tech) => (
-                      <option key={tech} value={tech}>{tech}</option>
-                    ))}
+                    {TECHNICIANS.map((tech) => <option key={tech} value={tech}>{tech}</option>)}
                   </select>
-                </label>
+                </div>
               </div>
               
               <div className="edit-modal-actions">
@@ -479,3 +485,4 @@ export default function ViewData() {
     </div>
   )
 }
+

@@ -1,31 +1,38 @@
 .app-navbar {
-  background: #166534;
-  color: #ffffff;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  border-bottom: 1px solid #14532d;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  font-family: Inter, "Poppins", -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  font-family: inherit;
   position: sticky;
   top: 0;
   z-index: 50;
+  padding: 0.5rem 0;
 }
 
 .navbar-inner {
   max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 24px;
   display: flex;
   align-items: center;
-  gap: 24px;
-  min-height: 58px;
+  gap: 32px;
+  min-height: 48px;
 }
 
 .navbar-brand {
-  font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: 0.02em;
-  color: #ffffff;
+  font-weight: 800;
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #059669, #0d9488);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .navbar-links {
@@ -34,30 +41,41 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  gap: 4px;
+  gap: 8px;
   align-items: center;
 }
 
 .navbar-links a {
-  color: rgba(255, 255, 255, 0.95);
+  color: var(--text-secondary);
   text-decoration: none;
-  padding: 8px 12px;
-  border-radius: 999px;
+  padding: 8px 16px;
+  border-radius: 8px;
   font-size: 0.95rem;
   font-weight: 600;
-  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  transition: all 0.2s ease;
+  position: relative;
 }
 
 .navbar-links a:hover {
-  background: rgba(255, 255, 255, 0.18);
-  color: #ffffff;
-  transform: translateY(-1px);
+  background: var(--primary-light);
+  color: var(--primary);
 }
 
 .navbar-links a.active {
-  background: rgba(255, 255, 255, 0.24);
-  color: #ffffff;
-  font-weight: 600;
+  background: var(--primary-light);
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.navbar-links a.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 20%;
+  right: 20%;
+  height: 3px;
+  background: linear-gradient(90deg, #10b981, #0d9488);
+  border-radius: 3px;
 }
 
 .navbar-profile-wrap {
@@ -66,83 +84,88 @@
 }
 
 .navbar-profile-trigger {
-  border: 1px solid #d1d5db;
-  background: #fff;
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface);
   border-radius: 999px;
-  padding: 4px 8px 4px 4px;
+  padding: 4px 12px 4px 4px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.navbar-profile-trigger:hover {
+  border-color: var(--primary);
 }
 
 .navbar-avatar {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 999px;
-  background: #059669;
+  background: linear-gradient(135deg, #059669, #0d9488);
   color: #fff;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3);
 }
 
 .navbar-chevron {
-  color: #64748b;
-  font-size: 11px;
+  color: var(--text-secondary);
+  font-size: 12px;
 }
 
 .navbar-profile-dropdown {
   position: absolute;
   right: 0;
-  top: calc(100% + 8px);
-  min-width: 180px;
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  box-shadow: 0 12px 22px rgba(15, 23, 42, 0.12);
-  padding: 6px;
+  top: calc(100% + 12px);
+  min-width: 200px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  padding: 8px;
   z-index: 60;
 }
 
 .navbar-profile-info {
-  padding: 8px 10px 6px;
-  border-bottom: 1px solid #f1f5f9;
-  margin-bottom: 4px;
+  padding: 12px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 8px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 
 .navbar-profile-name {
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text-main);
 }
 
 .navbar-profile-role {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
 .navbar-logout {
   width: 100%;
   text-align: left;
-  padding: 8px 10px;
+  padding: 10px 12px;
   font-size: 0.9rem;
-  font-weight: 600;
-  color: #166534;
+  font-weight: 700;
+  color: #ef4444;
   background: transparent;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: all 0.15s ease;
 }
 
 .navbar-logout:hover {
-  background: #ecfdf5;
-  color: #047857;
+  background: #fef2f2;
 }

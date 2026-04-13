@@ -331,199 +331,191 @@ export default function TechWorkSlip() {
         </header>
 
         <main className="slip-body">
-          <div className="fields-row fields-row-date-quarter">
-            <div className="field-box field-date">
-              <label className="field">
-                <span className="field-label">DATE</span>
-                <input
-                  type="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  onBlur={handleBlur('date')}
-                  className={`date-input ${errors.date ? 'error' : ''}`}
-                  min="2020-01-01"
-                  max="2030-12-31"
-                />
-                {errors.date && <span className="field-error">{errors.date}</span>}
-              </label>
-            </div>
-            <div className="quarter-box">
-              <span className="quarter-label">QUARTER</span>
-              <select value={quarter} onChange={(e) => setQuarter(Number(e.target.value) as 1 | 2 | 3 | 4)} className="quarter-select">
-                {QUARTER_OPTIONS.map((q) => (
-                  <option key={q.value} value={q.value}>{q.label}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="fields-row area-row">
-            <div className="field-box area-group">
-              <span className="field-label">Area</span>
-              <label className="checkbox-label">
-                <input type="radio" name="area" checked={areaInHouse} onChange={() => { setAreaInHouse(true); setAreaOnSite(false); setAreaInteragency(false); }} onBlur={handleBlur('area')} />
-                In House (within City Hall premises)
-              </label>
-              <label className="checkbox-label">
-                <input type="radio" name="area" checked={areaOnSite} onChange={() => { setAreaOnSite(true); setAreaInHouse(false); setAreaInteragency(false); }} onBlur={handleBlur('area')} />
-                On Site (outside government offices and barangays)
-              </label>
-              <label className="checkbox-label">
-                <input type="radio" name="area" checked={areaInteragency} onChange={() => { setAreaInteragency(true); setAreaInHouse(false); setAreaOnSite(false); }} onBlur={handleBlur('area')} />
-                Interagency
-              </label>
-              {errors.area && <span className="field-error">{errors.area}</span>}
-            </div>
-            <div className="field-box field offices-field" ref={officesRef}>
-              <span className="field-label">OFFICES</span>
-              <button
-                type="button"
-                className={`offices-dropdown ${errors.offices ? 'error' : ''}`}
-                onClick={() => setOfficesOpen((o) => !o)}
-                onBlur={handleBlur('offices')}
-              >
-                {selectedOffices.length === 0 ? 'Select offices…' : `${selectedOffices.length} selected`}
-              </button>
-              {errors.offices && <span className="field-error">{errors.offices}</span>}
-              {officesOpen && (
-                <div className="offices-dropdown-panel">
-                  {availableOffices.length === 0 ? (
-                    <div className="offices-empty">Select an area first</div>
-                  ) : (
-                    availableOffices.map((office) => (
-                      <label key={office} className="offices-option">
-                        <input type="checkbox" checked={selectedOffices.includes(office)} onChange={() => toggleOffice(office)} />
-                        {office}
-                      </label>
-                    ))
-                  )}
-                </div>
-              )}
-            </div>
-            {selectedOffices.includes('DEP-ED') && (
-              <div className="field-box field school-name-field">
-                <label className="field">
-                  <span className="field-label">School name (DEP-ED)</span>
+          <div className="dashboard-grid no-print" style={{ marginTop: '1.5rem' }}>
+            {/* General Information Card */}
+            <div className="dashboard-card">
+              <div className="card-header"><h3 className="card-title">General Information</h3></div>
+              <div className="card-body">
+                <div className="form-group">
+                  <label className="form-label">Date</label>
                   <input
-                    type="text"
-                    value={schoolName}
-                    onChange={(e) => setSchoolName(e.target.value)}
-                    placeholder="e.g. Tagum City National High School"
-                    className="school-name-input"
+                    type="date"
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    onBlur={handleBlur('date')}
+                    className={`form-input ${errors.date ? 'error' : ''}`}
+                    min="2020-01-01"
+                    max="2030-12-31"
                   />
-                </label>
+                  {errors.date && <span className="field-error">{errors.date}</span>}
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Quarter</label>
+                  <select value={quarter} onChange={(e) => setQuarter(Number(e.target.value) as 1 | 2 | 3 | 4)} className="form-select">
+                    {QUARTER_OPTIONS.map((q) => <option key={q.value} value={q.value}>{q.label}</option>)}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Time Started</label>
+                  <input type="time" value={timeStarted} onChange={(e) => setTimeStarted(e.target.value)} onBlur={handleBlur('timeStarted')} className={`form-input ${errors.timeStarted ? 'error' : ''}`} />
+                  {errors.timeStarted && <span className="field-error">{errors.timeStarted}</span>}
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Time Ended</label>
+                  <input type="time" value={timeEnded} onChange={(e) => setTimeEnded(e.target.value)} onBlur={handleBlur('timeEnded')} className={`form-input ${errors.timeEnded ? 'error' : ''}`} />
+                  {errors.timeEnded && <span className="field-error">{errors.timeEnded}</span>}
+                </div>
               </div>
-            )}
-            <div className="field-box">
-              <label className="field">
-                <span className="field-label">Time Started</span>
-                <input type="time" value={timeStarted} onChange={(e) => setTimeStarted(e.target.value)} onBlur={handleBlur('timeStarted')} className={errors.timeStarted ? 'error' : ''} />
-                {errors.timeStarted && <span className="field-error">{errors.timeStarted}</span>}
-              </label>
             </div>
-            <div className="field-box">
-              <label className="field">
-                <span className="field-label">Time Ended</span>
-                <input type="time" value={timeEnded} onChange={(e) => setTimeEnded(e.target.value)} onBlur={handleBlur('timeEnded')} className={errors.timeEnded ? 'error' : ''} />
-                {errors.timeEnded && <span className="field-error">{errors.timeEnded}</span>}
-              </label>
-            </div>
-          </div>
 
-          <section className="technical-report">
-            <h3 className="report-title">TECHNICAL REPORT</h3>
+            {/* Location & Routing Card */}
+            <div className="dashboard-card">
+              <div className="card-header"><h3 className="card-title">Location & Routing</h3></div>
+              <div className="card-body">
+                <div className="form-group">
+                  <label className="form-label">Area</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.25rem' }}>
+                    <label className="checkbox-label" style={{ padding: '8px 12px', borderRadius: '8px' }}>
+                      <input type="radio" name="area" checked={areaInHouse} onChange={() => { setAreaInHouse(true); setAreaOnSite(false); setAreaInteragency(false); }} onBlur={handleBlur('area')} style={{ marginRight: '8px' }} />
+                      In House (within City Hall premises)
+                    </label>
+                    <label className="checkbox-label" style={{ padding: '8px 12px', borderRadius: '8px' }}>
+                      <input type="radio" name="area" checked={areaOnSite} onChange={() => { setAreaOnSite(true); setAreaInHouse(false); setAreaInteragency(false); }} onBlur={handleBlur('area')} style={{ marginRight: '8px' }} />
+                      On Site (outside government offices)
+                    </label>
+                    <label className="checkbox-label" style={{ padding: '8px 12px', borderRadius: '8px' }}>
+                      <input type="radio" name="area" checked={areaInteragency} onChange={() => { setAreaInteragency(true); setAreaInHouse(false); setAreaOnSite(false); }} onBlur={handleBlur('area')} style={{ marginRight: '8px' }} />
+                      Interagency
+                    </label>
+                  </div>
+                  {errors.area && <span className="field-error">{errors.area}</span>}
+                </div>
 
-            {reportRows.map((row, index) => (
-              <div key={row.id} className="report-row animate-fade-in delay-100">
-                <div className="report-row-header">
-                  <span className="report-row-title">Report {index + 1}</span>
-                  {reportRows.length > 1 && (
-                    <button type="button" className="report-row-remove" onClick={() => removeReportRow(row.id)} aria-label="Remove report">Remove</button>
+                <div className="form-group" ref={officesRef} style={{ position: 'relative' }}>
+                  <label className="form-label">OFFICES</label>
+                  <button type="button" className={`form-select ${errors.offices ? 'error' : ''}`} onClick={() => setOfficesOpen((o) => !o)} onBlur={handleBlur('offices')} style={{ textAlign: 'left', minHeight: '44px' }}>
+                    {selectedOffices.length === 0 ? 'Select offices…' : `${selectedOffices.length} selected`}
+                  </button>
+                  {errors.offices && <span className="field-error">{errors.offices}</span>}
+                  {officesOpen && (
+                    <div className="offices-dropdown-panel" style={{ width: '100%', top: '100%', marginTop: '4px' }}>
+                      {availableOffices.length === 0 ? (
+                        <div className="offices-empty">Select an area first</div>
+                      ) : (
+                        availableOffices.map((office) => (
+                          <label key={office} className="offices-option">
+                            <input type="checkbox" checked={selectedOffices.includes(office)} onChange={() => toggleOffice(office)} /> {office}
+                          </label>
+                        ))
+                      )}
+                    </div>
                   )}
                 </div>
-                <label className="field block">
-                  <span className="field-label">REQUEST</span>
-                  <select
-                    value={row.request}
-                    onChange={(e) => updateReportRow(row.id, 'request', e.target.value)}
-                    onBlur={handleBlur('actionDone')}
-                    className={index === 0 && errors.actionDone ? 'error request-select' : 'request-select'}
-                  >
-                    <option value="" disabled>Select request type…</option>
-                    {REQUEST_TYPES.map((opt) => (
-                      <option key={opt} value={opt}>{opt}</option>
-                    ))}
-                  </select>
-                  {index === 0 && errors.actionDone && <span className="field-error">{errors.actionDone}</span>}
-                </label>
-                {row.request === 'Printer isolation (reset,installation, printer sharing, and checking)' && index === 0 && (
-                  <>
-                    <label className="field block">
-                      <span className="field-label">PRINTER BRAND</span>
-                      <select value={printerBrand} onChange={(e) => setPrinterBrand(e.target.value)} className="printer-select">
-                        <option value="">Select printer brand…</option>
-                        {PRINTER_BRANDS.map((brand) => (
-                          <option key={brand} value={brand}>{brand}</option>
-                        ))}
-                      </select>
-                    </label>
-                    <label className="field block">
-                      <span className="field-label">PRINTER MODEL</span>
-                      <input type="text" value={printerModel} onChange={(e) => setPrinterModel(e.target.value)} placeholder="Enter printer model" className="printer-model-input" />
-                    </label>
-                  </>
+
+                {selectedOffices.includes('DEP-ED') && (
+                  <div className="form-group">
+                    <label className="form-label">School name (DEP-ED)</label>
+                    <input type="text" value={schoolName} onChange={(e) => setSchoolName(e.target.value)} placeholder="e.g. Tagum City National High School" className="form-input" />
+                  </div>
                 )}
-
-                <label className="field block">
-                  <span className="field-label">ACTION DONE</span>
-                  <textarea
-                    value={row.actionDone}
-                    onChange={(e) => updateReportRow(row.id, 'actionDone', e.target.value)}
-                    onBlur={index === 0 ? handleBlur('actionDoneText') : undefined}
-                    rows={3}
-                    className={index === 0 && errors.actionDoneText ? 'error' : ''}
-                  />
-                  {index === 0 && errors.actionDoneText && <span className="field-error">{errors.actionDoneText}</span>}
-                </label>
-                <label className="field block">
-                  <span className="field-label">RECOMMENDATION</span>
-                  <textarea
-                    value={row.recommendation}
-                    onChange={(e) => updateReportRow(row.id, 'recommendation', e.target.value)}
-                    rows={3}
-                  />
-                </label>
-
-              </div>
-            ))}
-
-            <button type="button" className="add-report-btn" onClick={addReportRow}>+ Add another report</button>
-          </section>
-
-          <footer className="slip-footer">
-            <div className="signature-row">
-              <div className="signature-block">
-                <span className="field-label">Client (Full Name)</span>
-                <input type="text" value={requesterSignature} onChange={(e) => setRequesterSignature(e.target.value)} className="signature-input" />
-              </div>
-              <div className="signature-block">
-                <span className="field-label">Technician</span>
-                <select
-                  value={technicianName}
-                  onChange={(e) => setTechnicianName(e.target.value)}
-                  onBlur={handleBlur('technician')}
-                  className={`signature-select ${errors.technician ? 'error' : ''}`}
-                >
-                  <option value="" disabled>Select Technician</option>
-                  {TECHNICIANS.map((tech) => (
-                    <option key={tech} value={tech}>{tech}</option>
-                  ))}
-                </select>
-                {errors.technician && <span className="field-error">{errors.technician}</span>}
               </div>
             </div>
 
-          </footer>
+            {/* Technical Reports Card */}
+            <div className="dashboard-card" style={{ gridColumn: '1 / -1' }}>
+              <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h3 className="card-title">Technical Reports</h3>
+                <button type="button" className="add-report-btn" onClick={addReportRow} style={{ padding: '6px 12px', fontSize: '0.875rem', borderRadius: '6px' }}>+ Add Report</button>
+              </div>
+              <div className="card-body">
+                {reportRows.map((row, index) => (
+                  <div key={row.id} className="report-row animate-fade-in delay-100" style={{ padding: '1rem', border: '1px solid var(--border-color)', borderRadius: '8px', marginBottom: '1rem', background: 'var(--bg-app)' }}>
+                    <div className="report-row-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                      <span style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>Report {index + 1}</span>
+                      {reportRows.length > 1 && (
+                        <button type="button" className="report-row-remove" onClick={() => removeReportRow(row.id)} style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}>Remove</button>
+                      )}
+                    </div>
+
+                    <div className="form-group">
+                      <label className="form-label">REQUEST</label>
+                      <select
+                        value={row.request}
+                        onChange={(e) => updateReportRow(row.id, 'request', e.target.value)}
+                        onBlur={handleBlur('actionDone')}
+                        className={`form-select ${index === 0 && errors.actionDone ? 'error' : ''}`}
+                      >
+                        <option value="" disabled>Select request type…</option>
+                        {REQUEST_TYPES.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
+                      </select>
+                      {index === 0 && errors.actionDone && <span className="field-error">{errors.actionDone}</span>}
+                    </div>
+
+                    {row.request === 'Printer isolation (reset,installation, printer sharing, and checking)' && index === 0 && (
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                        <div className="form-group">
+                          <label className="form-label">PRINTER BRAND</label>
+                          <select value={printerBrand} onChange={(e) => setPrinterBrand(e.target.value)} className="form-select">
+                            <option value="">Select printer brand…</option>
+                            {PRINTER_BRANDS.map((brand) => <option key={brand} value={brand}>{brand}</option>)}
+                          </select>
+                        </div>
+                        <div className="form-group">
+                          <label className="form-label">PRINTER MODEL</label>
+                          <input type="text" value={printerModel} onChange={(e) => setPrinterModel(e.target.value)} placeholder="Enter printer model" className="form-input" />
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="form-group">
+                      <label className="form-label">ACTION DONE</label>
+                      <textarea
+                        value={row.actionDone}
+                        onChange={(e) => updateReportRow(row.id, 'actionDone', e.target.value)}
+                        onBlur={index === 0 ? handleBlur('actionDoneText') : undefined}
+                        rows={3}
+                        className={`form-textarea ${index === 0 && errors.actionDoneText ? 'error' : ''}`}
+                      />
+                      {index === 0 && errors.actionDoneText && <span className="field-error">{errors.actionDoneText}</span>}
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">RECOMMENDATION</label>
+                      <textarea
+                        value={row.recommendation}
+                        onChange={(e) => updateReportRow(row.id, 'recommendation', e.target.value)}
+                        rows={3}
+                        className="form-textarea"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Signatures Card */}
+            <div className="dashboard-card" style={{ gridColumn: '1 / -1' }}>
+              <div className="card-header"><h3 className="card-title">Signatures</h3></div>
+              <div className="card-body" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+                <div className="form-group">
+                  <label className="form-label">Client (Full Name)</label>
+                  <input type="text" value={requesterSignature} onChange={(e) => setRequesterSignature(e.target.value)} className="form-input" />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Technician</label>
+                  <select
+                    value={technicianName}
+                    onChange={(e) => setTechnicianName(e.target.value)}
+                    onBlur={handleBlur('technician')}
+                    className={`form-select ${errors.technician ? 'error' : ''}`}
+                  >
+                    <option value="" disabled>Select Technician</option>
+                    {TECHNICIANS.map((tech) => <option key={tech} value={tech}>{tech}</option>)}
+                  </select>
+                  {errors.technician && <span className="field-error">{errors.technician}</span>}
+                </div>
+              </div>
+            </div>
+          </div>
         </main>
 
         <div className="print-actions no-print">

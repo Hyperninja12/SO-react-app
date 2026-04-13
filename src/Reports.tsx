@@ -189,162 +189,221 @@ export default function Reports() {
     URL.revokeObjectURL(url)
   }
 
-  if (loading) return <div className="reports-page"><p className="empty-msg">Loading…</p></div>
+  if (loading) return <div className="dashboard-layout"><p className="empty-msg">Loading…</p></div>
 
   return (
-    <div className="reports-page">
-      <h1 className="page-title">Reports</h1>
-
-      <div className="filter-bar">
-        <label className="filter-year-label">
-          Year for report:
-          <select
-            value={reportYear}
-            onChange={(e) => setReportYear(Number(e.target.value))}
-            className="filter-year-select"
-          >
-            {Array.from(new Set([reportYear, new Date().getFullYear(), ...slips.map((s) => s.date ? new Date(s.date + 'T12:00:00').getFullYear() : new Date().getFullYear())])).sort((a, b) => b - a).map((y) => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
-        </label>
-        {isAdmin && (
-          <button
-            type="button"
-            className="filter-btn download-btn"
-            onClick={downloadTotals}
-            disabled={slips.length === 0}
-          >
-            Download reports by month (Excel/CSV)
-          </button>
-        )}
+    <div className="dashboard-layout animate-fade-in">
+      {/* Hero Header */}
+      <div className="reports-hero">
+        <div className="reports-hero-content">
+          <h1 className="reports-hero-title">📊 Reports Dashboard</h1>
+          <p className="reports-hero-subtitle">Real-time analytics and insights for your work slips</p>
+        </div>
+        <div className="reports-hero-actions">
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label" style={{ color: 'rgba(255,255,255,0.8)' }}>Year</label>
+            <select
+              value={reportYear}
+              onChange={(e) => setReportYear(Number(e.target.value))}
+              className="form-select"
+              style={{ minWidth: 100 }}
+            >
+              {Array.from(new Set([reportYear, new Date().getFullYear(), ...slips.map((s) => s.date ? new Date(s.date + 'T12:00:00').getFullYear() : new Date().getFullYear())])).sort((a, b) => b - a).map((y) => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+          </div>
+          {isAdmin && (
+            <button
+              type="button"
+              className="reports-download-btn"
+              onClick={downloadTotals}
+              disabled={slips.length === 0}
+            >
+              ⬇ Download CSV
+            </button>
+          )}
+        </div>
       </div>
 
-      <div className="summary-cards summary-cards-top">
-        <div className="card">
-          <span className="card-label">Total slips</span>
-          <span className="card-value">{slips.length}</span>
+      {/* Colorful Stat Cards */}
+      <div className="reports-stats-grid">
+        <div className="report-stat-card report-stat-total">
+          <div className="report-stat-icon">📋</div>
+          <div className="report-stat-info">
+            <span className="report-stat-label">Total Slips</span>
+            <span className="report-stat-value">{slips.length}</span>
+          </div>
         </div>
-        <div className="card">
-          <span className="card-label">Hardware</span>
-          <span className="card-value">{hardwareCount}</span>
+        <div className="report-stat-card report-stat-hardware">
+          <div className="report-stat-icon">🖥️</div>
+          <div className="report-stat-info">
+            <span className="report-stat-label">Hardware</span>
+            <span className="report-stat-value">{hardwareCount}</span>
+          </div>
         </div>
-        <div className="card">
-          <span className="card-label">Software</span>
-          <span className="card-value">{softwareCount}</span>
+        <div className="report-stat-card report-stat-software">
+          <div className="report-stat-icon">💿</div>
+          <div className="report-stat-info">
+            <span className="report-stat-label">Software</span>
+            <span className="report-stat-value">{softwareCount}</span>
+          </div>
         </div>
-        <div className="card">
-          <span className="card-label">In House</span>
-          <span className="card-value">{slips.filter((s) => s.areaInHouse).length}</span>
+        <div className="report-stat-card report-stat-inhouse">
+          <div className="report-stat-icon">🏢</div>
+          <div className="report-stat-info">
+            <span className="report-stat-label">In House</span>
+            <span className="report-stat-value">{slips.filter((s) => s.areaInHouse).length}</span>
+          </div>
         </div>
-        <div className="card">
-          <span className="card-label">On Site</span>
-          <span className="card-value">{slips.filter((s) => s.areaOnSite).length}</span>
+        <div className="report-stat-card report-stat-onsite">
+          <div className="report-stat-icon">📍</div>
+          <div className="report-stat-info">
+            <span className="report-stat-label">On Site</span>
+            <span className="report-stat-value">{slips.filter((s) => s.areaOnSite).length}</span>
+          </div>
         </div>
-        <div className="card">
-          <span className="card-label">Interagency</span>
-          <span className="card-value">{slips.filter((s) => s.areaInteragency).length}</span>
+        <div className="report-stat-card report-stat-interagency">
+          <div className="report-stat-icon">🤝</div>
+          <div className="report-stat-info">
+            <span className="report-stat-label">Interagency</span>
+            <span className="report-stat-value">{slips.filter((s) => s.areaInteragency).length}</span>
+          </div>
         </div>
       </div>
 
       {chartData.length === 0 ? (
-        <p className="empty-msg">No data to show. Save work slips to see reports.</p>
+        <p className="empty-msg" style={{ gridColumn: '1/-1' }}>No data to show. Save work slips to see reports.</p>
       ) : (
         <>
-          <div className="chart-wrap">
-            <h2 className="chart-title">Work slips by month</h2>
-            <ResponsiveContainer width="100%" height={340}>
-              <BarChart data={chartData} margin={{ top: 16, right: 16, left: 16, bottom: 16 }}>
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Bar dataKey="count" name="Slips" radius={[4, 4, 0, 0]}>
-                  {chartData.map((_, i) => (
-                    <Cell key={i} fill="#166534" />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="chart-wrap">
-            <h2 className="chart-title">By request type (Hardware vs Software)</h2>
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={hwSwChartData} margin={{ top: 16, right: 16, left: 16, bottom: 16 }}>
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Bar dataKey="count" name="Slips" radius={[4, 4, 0, 0]}>
-                  {hwSwChartData.map((entry, i) => (
-                    <Cell key={i} fill={entry.fill} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="charts-grid">
-            <div className="chart-wrap chart-pie">
-              <h2 className="chart-title">By request type</h2>
-              {requestTypeChartData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={280}>
-                  <PieChart>
-                    <Pie data={requestTypeChartData} dataKey="count" nameKey="name" cx="50%" cy="50%" outerRadius={80} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
-                      {requestTypeChartData.map((_, i) => (
-                        <Cell key={i} fill={requestTypeChartData[i].fill} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value: number) => [value, 'Slips']} />
-                  </PieChart>
-                </ResponsiveContainer>
-              ) : (
-                <p className="chart-empty">No data</p>
-              )}
+          {/* Full-width charts */}
+          <div className="report-chart-card report-chart-accent-emerald">
+            <div className="report-chart-header">
+              <span className="report-chart-icon">📈</span>
+              <h2 className="report-chart-title">Work Slips by Month</h2>
             </div>
-            <div className="chart-wrap chart-pie">
-              <h2 className="chart-title">By technician</h2>
-              {technicianChartData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={280}>
-                  <PieChart>
-                    <Pie data={technicianChartData} dataKey="count" nameKey="name" cx="50%" cy="50%" outerRadius={80} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
-                      {technicianChartData.map((_, i) => (
-                        <Cell key={i} fill={technicianChartData[i].fill} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value: number) => [value, 'Slips']} />
-                  </PieChart>
-                </ResponsiveContainer>
-              ) : (
-                <p className="chart-empty">No data</p>
-              )}
+            <div className="card-body">
+              <ResponsiveContainer width="100%" height={340}>
+                <BarChart data={chartData} margin={{ top: 16, right: 16, left: 16, bottom: 16 }}>
+                  <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <Tooltip />
+                  <Bar dataKey="count" name="Slips" radius={[4, 4, 0, 0]}>
+                    {chartData.map((_, i) => (
+                      <Cell key={i} fill="#10b981" />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
 
-          <div className="chart-wrap">
-            <h2 className="chart-title">By quarter</h2>
-            <ResponsiveContainer width="100%" height={240}>
-              <BarChart data={quarterChartData} margin={{ top: 16, right: 16, left: 16, bottom: 16 }}>
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Bar dataKey="count" name="Slips" radius={[4, 4, 0, 0]} fill="#0d9488" />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="report-chart-card report-chart-accent-blue">
+            <div className="report-chart-header">
+              <span className="report-chart-icon">⚙️</span>
+              <h2 className="report-chart-title">Hardware vs Software</h2>
+            </div>
+            <div className="card-body">
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={hwSwChartData} margin={{ top: 16, right: 16, left: 16, bottom: 16 }}>
+                  <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <Tooltip />
+                  <Bar dataKey="count" name="Slips" radius={[4, 4, 0, 0]}>
+                    {hwSwChartData.map((entry, i) => (
+                      <Cell key={i} fill={entry.fill} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
 
-          <div className="chart-wrap">
-            <h2 className="chart-title">By area</h2>
-            <ResponsiveContainer width="100%" height={240}>
-              <BarChart data={areaChartData} margin={{ top: 16, right: 16, left: 16, bottom: 16 }}>
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Bar dataKey="count" name="Slips" radius={[4, 4, 0, 0]}>
-                  {areaChartData.map((entry, i) => (
-                    <Cell key={i} fill={entry.fill} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+          {/* 2x2 Chart Grid */}
+          <div className="reports-chart-grid">
+            <div className="report-chart-card report-chart-accent-violet">
+              <div className="report-chart-header">
+                <span className="report-chart-icon">🔖</span>
+                <h2 className="report-chart-title">By Request Type</h2>
+              </div>
+              <div className="card-body" style={{ minHeight: '300px' }}>
+                {requestTypeChartData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={280}>
+                    <PieChart>
+                      <Pie data={requestTypeChartData} dataKey="count" nameKey="name" cx="50%" cy="50%" outerRadius={80} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                        {requestTypeChartData.map((_, i) => (
+                          <Cell key={i} fill={requestTypeChartData[i].fill} />
+                        ))}
+                      </Pie>
+                      <Tooltip formatter={(value: number) => [value, 'Slips']} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <p className="empty-msg">No data</p>
+                )}
+              </div>
+            </div>
+
+            <div className="report-chart-card report-chart-accent-amber">
+              <div className="report-chart-header">
+                <span className="report-chart-icon">👨‍🔧</span>
+                <h2 className="report-chart-title">By Technician</h2>
+              </div>
+              <div className="card-body" style={{ minHeight: '300px' }}>
+                {technicianChartData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={280}>
+                    <PieChart>
+                      <Pie data={technicianChartData} dataKey="count" nameKey="name" cx="50%" cy="50%" outerRadius={80} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                        {technicianChartData.map((_, i) => (
+                          <Cell key={i} fill={technicianChartData[i].fill} />
+                        ))}
+                      </Pie>
+                      <Tooltip formatter={(value: number) => [value, 'Slips']} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <p className="empty-msg">No data</p>
+                )}
+              </div>
+            </div>
+
+            <div className="report-chart-card report-chart-accent-teal">
+              <div className="report-chart-header">
+                <span className="report-chart-icon">📅</span>
+                <h2 className="report-chart-title">By Quarter</h2>
+              </div>
+              <div className="card-body">
+                <ResponsiveContainer width="100%" height={280}>
+                  <BarChart data={quarterChartData} margin={{ top: 16, right: 16, left: 16, bottom: 16 }}>
+                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                    <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                    <Tooltip />
+                    <Bar dataKey="count" name="Slips" radius={[4, 4, 0, 0]} fill="#0d9488" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div className="report-chart-card report-chart-accent-rose">
+              <div className="report-chart-header">
+                <span className="report-chart-icon">🗺️</span>
+                <h2 className="report-chart-title">By Area</h2>
+              </div>
+              <div className="card-body">
+                <ResponsiveContainer width="100%" height={280}>
+                  <BarChart data={areaChartData} margin={{ top: 16, right: 16, left: 16, bottom: 16 }}>
+                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                    <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                    <Tooltip />
+                    <Bar dataKey="count" name="Slips" radius={[4, 4, 0, 0]}>
+                      {areaChartData.map((entry, i) => (
+                        <Cell key={i} fill={entry.fill} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           </div>
         </>
       )}

@@ -287,8 +287,14 @@ export default function AdminSettings() {
   }
 
   return (
-    <div className="admin-settings-page">
-      <h1 className="page-title"><Settings /> Admin Settings</h1>
+    <div className="dashboard-layout animate-fade-in">
+      {/* Hero Header */}
+      <div className="admin-hero">
+        <div className="admin-hero-content">
+          <h1 className="admin-hero-title">⚙️ Admin Settings</h1>
+          <p className="admin-hero-subtitle">Manage users, roles, permissions, and system configuration</p>
+        </div>
+      </div>
 
       {/* Tab Nav */}
       <div className="admin-tabs">
@@ -320,7 +326,7 @@ export default function AdminSettings() {
 
       {/* ═══════ USERS TAB ═══════ */}
       {activeTab === 'users' && (
-        <section className="admin-section">
+        <section className="dashboard-card" style={{ padding: '2rem' }}>
           <div className="admin-section-header">
             <div>
               <h2 className="admin-section-title"><Users size={20} /> User Accounts</h2>
@@ -375,7 +381,7 @@ export default function AdminSettings() {
 
       {/* ═══════ ROLES TAB ═══════ */}
       {activeTab === 'roles' && (
-        <section className="admin-section">
+        <section className="dashboard-card" style={{ padding: '2rem' }}>
           <div className="admin-section-header">
             <div>
               <h2 className="admin-section-title"><ShieldCheck size={20} /> Role Permissions</h2>
@@ -385,9 +391,9 @@ export default function AdminSettings() {
           {roles.length === 0 ? (
             <p className="admin-loading">Loading roles…</p>
           ) : (
-            <div className="admin-roles-grid">
+            <div className="dashboard-grid">
               {roles.map(role => (
-                <div key={role.name} className="admin-role-card">
+                <div key={role.name} className="dashboard-card" style={{ padding: '1.5rem', border: '1px solid var(--border-color)' }}>
                   <div className="admin-role-card-header">
                     <RoleBadge role={role.name} />
                     <button type="button" className="admin-btn admin-btn-small admin-btn-secondary" onClick={() => openRoleEditor(role)}>
@@ -415,7 +421,7 @@ export default function AdminSettings() {
 
       {/* ═══════ ACCESS HISTORY TAB ═══════ */}
       {activeTab === 'history' && (
-        <section className="admin-section">
+        <section className="dashboard-card" style={{ padding: '2rem' }}>
           <div className="admin-section-header">
             <div>
               <h2 className="admin-section-title"><History size={20} /> Access History</h2>
@@ -463,7 +469,7 @@ export default function AdminSettings() {
 
       {/* ═══════ YEAR-END TAB ═══════ */}
       {activeTab === 'yearend' && (
-        <section className="admin-section">
+        <section className="dashboard-card" style={{ padding: '2rem' }}>
           <div className="admin-section-header">
             <div>
               <h2 className="admin-section-title"><CalendarClock size={20} /> Year-End Reset</h2>
@@ -481,7 +487,7 @@ export default function AdminSettings() {
 
       {/* ═══════ ARCHIVES TAB ═══════ */}
       {activeTab === 'archives' && (
-        <section className="admin-section">
+        <section className="dashboard-card" style={{ padding: '2rem' }}>
           <div className="admin-section-header">
             <div>
               <h2 className="admin-section-title"><Archive size={20} /> Archived Data</h2>
@@ -590,18 +596,18 @@ export default function AdminSettings() {
               Enter the admin reset password to close the year and prepare the next year counter.
             </p>
             <form onSubmit={handleCloseYear} className="admin-form">
-              <label className="admin-field">
-                <span className="admin-label">Password</span>
+              <div className="form-group">
+                <label className="form-label">Password</label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter password"
-                  className="admin-input"
+                  className="form-input"
                   autoFocus
                   disabled={loading}
                 />
-              </label>
+              </div>
               {message && (
                 <p className={`admin-message ${message.type === 'error' ? 'admin-message-error' : 'admin-message-success'}`}>
                   {message.type === 'error' ? <AlertCircle size={16} /> : <Check size={16} />}
@@ -631,52 +637,52 @@ export default function AdminSettings() {
               <button type="button" className="admin-modal-close" onClick={closeUserModal} aria-label="Close"><X size={24} /></button>
             </div>
             <form onSubmit={handleSaveUser} className="admin-form">
-              <label className="admin-field">
-                <span className="admin-label">Username</span>
+              <div className="form-group">
+                <label className="form-label">Username</label>
                 <input
                   type="text"
                   value={formUsername}
                   onChange={(e) => setFormUsername(e.target.value)}
                   placeholder="e.g. john.doe"
-                  className="admin-input"
+                  className="form-input"
                   required
                   minLength={3}
                   autoFocus
                   disabled={formLoading}
                 />
-              </label>
-              <label className="admin-field">
-                <span className="admin-label">Display Name</span>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Display Name</label>
                 <input
                   type="text"
                   value={formDisplayName}
                   onChange={(e) => setFormDisplayName(e.target.value)}
                   placeholder="e.g. John Doe"
-                  className="admin-input"
+                  className="form-input"
                   disabled={formLoading}
                 />
-              </label>
-              <label className="admin-field">
-                <span className="admin-label">{userModal === 'edit' ? 'New Password (leave blank to keep current)' : 'Password'}</span>
+              </div>
+              <div className="form-group">
+                <label className="form-label">{userModal === 'edit' ? 'New Password (leave blank to keep current)' : 'Password'}</label>
                 <input
                   type="password"
                   value={formPassword}
                   onChange={(e) => setFormPassword(e.target.value)}
                   placeholder={userModal === 'edit' ? '••••••••' : 'Minimum 4 characters'}
-                  className="admin-input"
+                  className="form-input"
                   required={userModal === 'add'}
                   minLength={userModal === 'add' ? 4 : undefined}
                   disabled={formLoading}
                 />
-              </label>
-              <label className="admin-field">
-                <span className="admin-label">Role</span>
-                <select value={formRole} onChange={(e) => setFormRole(e.target.value)} className="admin-input" disabled={formLoading}>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Role</label>
+                <select value={formRole} onChange={(e) => setFormRole(e.target.value)} className="form-select" disabled={formLoading}>
                   {roles.map(r => (
                     <option key={r.name} value={r.name}>{r.label}</option>
                   ))}
                 </select>
-              </label>
+              </div>
               {formError && (
                 <p className="admin-message admin-message-error"><AlertCircle size={16} /> {formError}</p>
               )}
