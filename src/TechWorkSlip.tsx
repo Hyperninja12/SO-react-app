@@ -3,7 +3,6 @@ import { useLocation } from 'react-router-dom'
 import logo from "./assets/logo.jpg";
 import { saveSlip, saveDraft, getDraftById, getNextSONumber, getCurrentSOYear } from './store.ts'
 import {
-  OFFICES_IN_HOUSE,
   OFFICES_ON_SITE,
   OFFICES_INTERAGENCY,
   BARANGAY_OFFICES,
@@ -13,6 +12,7 @@ import {
   QUARTER_OPTIONS,
   getQuarterFromDate,
 } from './constants.ts'
+import { OFFICES_IN_HOUSE } from "./types.ts";
 import './TechWorkSlip.css'
 
 export default function TechWorkSlip() {

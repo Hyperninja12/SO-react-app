@@ -1,16 +1,16 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { useAuth } from './AuthContext'
 import { getSlips, updateSlip } from './store.ts'
-import { 
-  OFFICES_IN_HOUSE, 
-  OFFICES_ON_SITE, 
-  OFFICES_INTERAGENCY, 
-  BARANGAY_OFFICES, 
-  REQUEST_TYPES, 
+import {
+  OFFICES_ON_SITE,
+  OFFICES_INTERAGENCY,
+  BARANGAY_OFFICES,
+  REQUEST_TYPES,
   TECHNICIANS,
   QUARTER_OPTIONS,
   getQuarterFromDate,
 } from './constants.ts'
+import { OFFICES_IN_HOUSE } from "./types.ts"
 import type { WorkSlipEntry } from './types.ts'
 import './ViewData.css'
 
@@ -473,7 +473,7 @@ export default function ViewData() {
                   </select>
                 </div>
               </div>
-              
+
               <div className="edit-modal-actions">
                 <button type="button" className="btn-cancel" onClick={() => setEditingId(null)}>Cancel</button>
                 <button type="submit" className="btn-save-edit">Save changes</button>

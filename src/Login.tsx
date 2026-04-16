@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import logo from './assets/logo.jpg'
 import './Login.css'
 
@@ -12,6 +12,27 @@ export default function Login({ onLogin }: Props) {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [avoidPos, setAvoidPos] = useState(0)
+
+  useEffect(() => {
+    if (username.trim() && password) {
+      setAvoidPos(0)
+      return
+    }
+
+    if (avoidPos !== 0) {
+      const timer = setTimeout(() => {
+        setAvoidPos(0)
+      }, 1200) // Reset after 1.2s
+      return () => clearTimeout(timer)
+    }
+  }, [avoidPos, username, password])
+
+  const handleButtonHover = () => {
+    if (!username.trim() || !password) {
+      setAvoidPos((prev) => (prev % 4) + 1)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -55,7 +76,7 @@ export default function Login({ onLogin }: Props) {
             Enter your account details to access SO slip dashboard.
           </p>
         </div>
-        <div className="login-window-body">
+        <div className="login-window-body" onMouseLeave={() => setAvoidPos(0)}>
           <h2 className="login-title">Login</h2>
           <form className="login-form" onSubmit={handleSubmit}>
             <label className="login-field">
@@ -89,7 +110,13 @@ export default function Login({ onLogin }: Props) {
                 {showPassword ? '👁️' : '👁️‍🗨️'}
               </button>
             </label>
-            <button type="submit" className="login-submit" disabled={loading}>
+            <button
+              type="submit"
+              className={`login-submit ${avoidPos ? `avoid-${avoidPos}` : ''}`}
+              disabled={loading}
+              onMouseEnter={handleButtonHover}
+              onFocus={handleButtonHover}
+            >
               {loading ? (
                 <span className="login-submit-loading">
                   <span className="login-spinner" aria-hidden /> Signing in…
@@ -118,9 +145,9 @@ export default function Login({ onLogin }: Props) {
             <div className="login-error-icon">⚠️</div>
             <h3 className="login-error-title">Login Failed</h3>
             <p className="login-error-text">{error}</p>
-            <button 
-              type="button" 
-              className="login-error-btn" 
+            <button
+              type="button"
+              className="login-error-btn"
               onClick={() => setError('')}
             >
               Try Again
