@@ -38,7 +38,7 @@
   }
 }
 
-/* Tech Work Slip – modern card-style */
+/* Tech Work Slip – Glassmorphism */
 .tech-work-slip {
   max-width: 820px;
   margin: 0 auto;
@@ -46,10 +46,25 @@
   font-family: inherit;
   color: #1f2937;
   border: 2px solid #166534;
-  border-radius: 12px;
-  overflow: hidden;
+  border-radius: 16px;
   box-sizing: border-box;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  box-shadow:
+    0 8px 32px rgba(16, 185, 129, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* inner cards inside slip – glass panels */
+.tech-work-slip .dashboard-card {
+  background: rgba(255, 255, 255, 0.5) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.55) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.07) !important;
 }
 
 /* Colored accent borders for form section cards */
@@ -57,38 +72,46 @@
   border-left: 4px solid #10b981;
 }
 .tech-work-slip .dashboard-card:nth-child(1) .card-header {
-  background: linear-gradient(90deg, #ecfdf5, transparent);
+  background: linear-gradient(90deg, rgba(236,253,245,0.5), transparent);
 }
 
 .tech-work-slip .dashboard-card:nth-child(2) {
   border-left: 4px solid #6366f1;
 }
 .tech-work-slip .dashboard-card:nth-child(2) .card-header {
-  background: linear-gradient(90deg, #eef2ff, transparent);
+  background: linear-gradient(90deg, rgba(238,242,255,0.5), transparent);
 }
 
 .tech-work-slip .dashboard-card:nth-child(3) {
   border-left: 4px solid #f59e0b;
 }
 .tech-work-slip .dashboard-card:nth-child(3) .card-header {
-  background: linear-gradient(90deg, #fffbeb, transparent);
+  background: linear-gradient(90deg, rgba(255,251,235,0.5), transparent);
 }
 
 .tech-work-slip .dashboard-card:nth-child(4) {
   border-left: 4px solid #8b5cf6;
 }
 .tech-work-slip .dashboard-card:nth-child(4) .card-header {
-  background: linear-gradient(90deg, #f5f3ff, transparent);
+  background: linear-gradient(90deg, rgba(245,243,255,0.5), transparent);
+}
+
+/* Force all card-headers inside the slip to be glass */
+.tech-work-slip .card-header {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255,255,255,0.35) !important;
 }
 
 .slip-header {
   margin-bottom: 0;
-  background: #fff;
-  border-radius: 12px 12px 0 0;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 16px 16px 0 0;
   padding: 24px 28px;
-  border: 1px solid #e5e7eb;
-  border-bottom: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: none;
 }
 
 .header-inner {
@@ -124,6 +147,15 @@
 .header-center {
   flex: 1;
   text-align: center;
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 14px;
+  padding: 12px 20px;
+  box-shadow:
+    0 4px 20px rgba(16, 185, 129, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
 }
 
 .org-line {
@@ -282,12 +314,14 @@
 }
 
 .slip-body {
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-top: none;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
   padding: 28px;
-  border-radius: 0 0 12px 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border-radius: 0 0 16px 16px;
+  box-shadow: none;
 }
 
 .field-label {
@@ -512,64 +546,212 @@
   min-width: 180px;
 }
 
+/* ── Offices trigger button ── */
 .offices-dropdown {
   width: 100%;
   min-width: 0;
-  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 13px 16px;
   font-size: 14px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background: #fff;
+  font-weight: 600;
   font-family: inherit;
-  text-align: left;
+  color: #0f172a;
+  background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(240,253,244,0.9) 100%);
+  border: 1.5px solid rgba(52,211,153,0.45);
+  border-radius: 12px;
   cursor: pointer;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  text-align: left;
+  transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+  box-shadow:
+    0 2px 8px -2px rgba(16,185,129,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.9);
+  backdrop-filter: blur(8px);
 }
 
 .offices-dropdown:hover {
-  border-color: #9ca3af;
+  border-color: #10b981;
+  background: linear-gradient(135deg, #ffffff 0%, rgba(220,252,231,0.8) 100%);
+  box-shadow:
+    0 6px 16px -4px rgba(16,185,129,0.2),
+    inset 0 1px 0 rgba(255,255,255,1);
+  transform: translateY(-1px);
 }
 
 .offices-dropdown.error {
-  border-color: #dc2626;
+  border-color: #f43f5e !important;
+  background: linear-gradient(135deg, #fff 0%, rgba(255,241,242,0.9) 100%) !important;
+  box-shadow: 0 0 0 3px rgba(244,63,94,0.12) !important;
 }
 
+/* Left side: icon + text */
+.offices-btn-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.offices-btn-icon {
+  font-size: 15px;
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+
+.offices-btn-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.offices-btn-text.has-selection {
+  color: #065f46;
+  font-weight: 600;
+}
+
+/* Badge showing count */
+.offices-btn-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+  box-shadow: 0 2px 6px rgba(16,185,129,0.4);
+  animation: badge-pop 0.2s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+@keyframes badge-pop {
+  from { transform: scale(0.5); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+/* Animated chevron */
+.offices-btn-chevron {
+  font-size: 11px;
+  color: #10b981;
+  flex-shrink: 0;
+  transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+  display: inline-block;
+}
+
+.offices-btn-chevron.open {
+  transform: rotate(180deg);
+}
+
+/* ── Dropdown panel ── */
 .offices-dropdown-panel {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 6px);
   left: 0;
   right: 0;
-  margin-top: 4px;
-  max-height: 220px;
+  max-height: 240px;
   overflow-y: auto;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  background: #fff;
-  z-index: 10;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+  border: 1.5px solid rgba(52,211,153,0.3);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.97);
+  backdrop-filter: blur(20px);
+  z-index: 50;
+  box-shadow:
+    0 20px 40px -10px rgba(16,185,129,0.18),
+    0 4px 12px rgba(0,0,0,0.08);
+  padding: 6px;
+  animation: panel-drop 0.2s cubic-bezier(0.4,0,0.2,1);
 }
 
+@keyframes panel-drop {
+  from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)  scale(1);    }
+}
+
+/* Custom scrollbar */
+.offices-dropdown-panel::-webkit-scrollbar {
+  width: 4px;
+}
+.offices-dropdown-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+.offices-dropdown-panel::-webkit-scrollbar-thumb {
+  background: rgba(52,211,153,0.4);
+  border-radius: 99px;
+}
+
+/* Each option row */
 .offices-option {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
-  font-size: 13px;
+  font-size: 13.5px;
+  font-weight: 500;
   cursor: pointer;
-  border-bottom: 1px solid #f3f4f6;
-  color: #374151;
+  border-radius: 10px;
+  color: #1e293b;
+  transition: background 0.15s, color 0.15s;
+  user-select: none;
+  margin-bottom: 2px;
 }
 
 .offices-option:last-child {
-  border-bottom: none;
+  margin-bottom: 0;
 }
 
 .offices-option:hover {
-  background: #f0fdf4;
+  background: linear-gradient(90deg, rgba(16,185,129,0.08), rgba(16,185,129,0.04));
+  color: #065f46;
 }
 
-.offices-option input {
-  width: auto;
+.offices-option:has(input:checked) {
+  background: linear-gradient(90deg, rgba(16,185,129,0.15), rgba(16,185,129,0.06));
+  color: #047857;
+  font-weight: 700;
+}
+
+/* Hide default checkbox, show custom one */
+.offices-option input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  border: 1.5px solid rgba(52,211,153,0.5);
+  border-radius: 5px;
+  background: #fff;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.offices-option input[type="checkbox"]:checked {
+  background: linear-gradient(135deg, #10b981, #059669);
+  border-color: transparent;
+  box-shadow: 0 2px 6px rgba(16,185,129,0.35);
+}
+
+.offices-option input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1.5px;
+  width: 5px;
+  height: 9px;
+  border: 2px solid #fff;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
 }
 
 .technical-report {
@@ -1059,15 +1241,15 @@
 .report-row,
 .signature-row,
 .approval-block {
-  background: rgba(255, 255, 255, 0.5) !important;
-  backdrop-filter: blur(16px) saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.8) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.4) !important;
+  background: rgba(255, 255, 255, 0.25) !important;
+  backdrop-filter: blur(8px) saturate(140%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.25) !important;
   border-radius: 16px !important;
   padding: 18px 20px !important;
   box-shadow: 
-    0 10px 30px -10px rgba(16, 185, 129, 0.1), 
-    inset 0 1px 0 rgba(255, 255, 255, 1) !important;
+    0 4px 16px -4px rgba(16, 185, 129, 0.06), 
+    inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
 }
 
 /* Floating Checkboxes */

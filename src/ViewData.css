@@ -177,6 +177,7 @@
 .data-table-wrap {
   overflow: auto;
   max-height: min(70vh, 600px);
+  max-width: 100%;
   background: #fff;
   border-radius: 12px;
   border: 1px solid #e5e7eb;

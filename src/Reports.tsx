@@ -61,6 +61,7 @@ export default function Reports() {
   const [slips, setSlips] = useState<WorkSlipEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [reportYear, setReportYear] = useState(() => new Date().getFullYear())
+  const [reportQuarter, setReportQuarter] = useState<0 | 1 | 2 | 3 | 4>(0)
 
   useEffect(() => {
     const loadSlips = async () => {
@@ -72,8 +73,22 @@ export default function Reports() {
     loadSlips()
   }, [])
 
-  const hardwareCount = useMemo(() => slips.filter((s) => getRequestCategory(s.actionDone) === 'hardware' || s.actionDone === 'Printer isolation (reset,installation, printer sharing, and checking)').length, [slips])
-  const softwareCount = useMemo(() => slips.filter((s) => getRequestCategory(s.actionDone) === 'software' || s.actionDone === 'Printer isolation (reset,installation, printer sharing, and checking)').length, [slips])
+  // Slips filtered by selected year + quarter
+  const filteredSlips = useMemo(() => {
+    return slips.filter((s) => {
+      if (!s.date) return false
+      const d = new Date(s.date + 'T12:00:00')
+      if (d.getFullYear() !== reportYear) return false
+      if (reportQuarter !== 0) {
+        const q = s.quarter ?? getQuarterFromDate(s.date)
+        if (q !== reportQuarter) return false
+      }
+      return true
+    })
+  }, [slips, reportYear, reportQuarter])
+
+  const hardwareCount = useMemo(() => filteredSlips.filter((s) => getRequestCategory(s.actionDone) === 'hardware' || s.actionDone === 'Printer isolation (reset,installation, printer sharing, and checking)').length, [filteredSlips])
+  const softwareCount = useMemo(() => filteredSlips.filter((s) => getRequestCategory(s.actionDone) === 'software' || s.actionDone === 'Printer isolation (reset,installation, printer sharing, and checking)').length, [filteredSlips])
   const hwSwChartData = useMemo(() => [
     { name: 'Hardware', count: hardwareCount, fill: '#166534' },
     { name: 'Software', count: softwareCount, fill: '#1e40af' },
@@ -81,46 +96,46 @@ export default function Reports() {
 
   const requestTypeChartData = useMemo(() => {
     const map = new Map<string, number>()
-    slips.forEach((s) => {
+    filteredSlips.forEach((s) => {
       const key = s.actionDone || '—'
       map.set(key, (map.get(key) ?? 0) + 1)
     })
     return Array.from(map.entries())
       .map(([name, count], i) => ({ name: name.length > 30 ? name.slice(0, 28) + '…' : name, fullName: name, count, fill: PIE_COLORS[i % PIE_COLORS.length] }))
       .sort((a, b) => b.count - a.count)
-  }, [slips])
+  }, [filteredSlips])
 
   const technicianChartData = useMemo(() => {
     const map = new Map<string, number>()
-    slips.forEach((s) => {
+    filteredSlips.forEach((s) => {
       const key = s.technicianName || 'Unassigned'
       map.set(key, (map.get(key) ?? 0) + 1)
     })
     return Array.from(map.entries())
       .map(([name, count], i) => ({ name, count, fill: PIE_COLORS[i % PIE_COLORS.length] }))
       .sort((a, b) => b.count - a.count)
-  }, [slips])
+  }, [filteredSlips])
 
   const quarterChartData = useMemo(() => {
     const map = new Map<string, number>()
-    slips.forEach((s) => {
+    filteredSlips.forEach((s) => {
       const q = s.quarter ?? getQuarterFromDate(s.date)
       const key = `Q${q}`
       map.set(key, (map.get(key) ?? 0) + 1)
     })
     return ['Q1', 'Q2', 'Q3', 'Q4']
       .map((key) => ({ name: key, count: map.get(key) ?? 0 }))
-  }, [slips])
+  }, [filteredSlips])
 
   const areaChartData = useMemo(() => [
-    { name: 'In House', count: slips.filter((s) => s.areaInHouse).length, fill: '#166534' },
-    { name: 'On Site', count: slips.filter((s) => s.areaOnSite).length, fill: '#1e40af' },
-    { name: 'Interagency', count: slips.filter((s) => s.areaInteragency).length, fill: '#7c3aed' },
-  ], [slips])
+    { name: 'In House', count: filteredSlips.filter((s) => s.areaInHouse).length, fill: '#166534' },
+    { name: 'On Site', count: filteredSlips.filter((s) => s.areaOnSite).length, fill: '#1e40af' },
+    { name: 'Interagency', count: filteredSlips.filter((s) => s.areaInteragency).length, fill: '#7c3aed' },
+  ], [filteredSlips])
 
   const chartData = useMemo(() => {
     const map = new Map<string, number>()
-    for (const s of slips) {
+    for (const s of filteredSlips) {
       if (!s.date) continue
       const key = getMonthKey(s.date)
       map.set(key, (map.get(key) ?? 0) + 1)
@@ -128,54 +143,60 @@ export default function Reports() {
     return Array.from(map.entries())
       .map(([key, count]) => ({ name: formatMonthLabel(key), key, count }))
       .sort((a, b) => a.key.localeCompare(b.key))
-  }, [slips])
+  }, [filteredSlips])
 
   const downloadTotals = () => {
     const year = reportYear
-    const monthLabels = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEPT', 'OCT', 'NOV', 'DEC']
+    const allMonthLabels = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEPT', 'OCT', 'NOV', 'DEC']
 
-    // count[section][rowIndex][month1-12] then total per row
+    // Quarter month ranges (0-indexed)
+    const quarterMonthRanges: Record<number, number[]> = {
+      0: [0,1,2,3,4,5,6,7,8,9,10,11],
+      1: [0,1,2],
+      2: [3,4,5],
+      3: [6,7,8],
+      4: [9,10,11],
+    }
+    const monthCols = quarterMonthRanges[reportQuarter]
+    const monthLabels = monthCols.map((i) => allMonthLabels[i])
+
     type CountGrid = number[][][]
     const count: CountGrid = [
-      [ [0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0] ],
-      [ [0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0] ],
+      Array.from({ length: 5 }, () => Array(12).fill(0)),
+      Array.from({ length: 5 }, () => Array(12).fill(0)),
     ]
 
-    for (const slip of slips) {
+    for (const slip of filteredSlips) {
       const section = getSection(slip)
       if (section === null) continue
-      const slipYear = slip.date ? new Date(slip.date + 'T12:00:00').getFullYear() : year
-      if (slipYear !== year) continue
-
       const reports = slip.technicalReports && slip.technicalReports.length > 0
         ? slip.technicalReports
         : [{ request: slip.actionDone, actionDone: slip.actionDone, recommendation: slip.recommendation }]
-
       const month1Based = slip.date ? new Date(slip.date + 'T12:00:00').getMonth() + 1 : 1
       const col = month1Based - 1
-
       for (const r of reports) {
         const rowIndex = getReportRowIndex(r.request || r.actionDone)
-        if (rowIndex !== null) {
-          count[section][rowIndex][col] += 1
-        }
+        if (rowIndex !== null) count[section][rowIndex][col] += 1
       }
     }
 
+    const qLabel = reportQuarter === 0 ? `${year}` : `${year}-Q${reportQuarter}`
     const escape = (cell: string | number) => `"${String(cell).replace(/"/g, '""')}"`
     const rows: string[][] = []
 
-    rows.push(['', String(year), '', '', '', '', '', '', '', '', '', '', '', ''])
+    rows.push(['', qLabel, ...Array(monthLabels.length - 1).fill(''), ''])
     rows.push(['Local Government of Tagum (On-Site & In House)', ...monthLabels, 'TOTAL'])
     for (let r = 0; r < 5; r++) {
-      const total = count[0][r].reduce((s, n) => s + n, 0)
-      rows.push([REPORT_ROW_LABELS[r], ...count[0][r].map(String), String(total)])
+      const vals = monthCols.map((col) => count[0][r][col])
+      const total = vals.reduce((s, n) => s + n, 0)
+      rows.push([REPORT_ROW_LABELS[r], ...vals.map(String), String(total)])
     }
-    
-    rows.push(['Interagency Assistance (DEP-ED, BARANGAY\'S, PAO, RTC, BJMP, PNP)', ...monthLabels, 'TOTAL'])
+
+    rows.push(["Interagency Assistance (DEP-ED, BARANGAY'S, PAO, RTC, BJMP, PNP)", ...monthLabels, 'TOTAL'])
     for (let r = 0; r < 5; r++) {
-      const total = count[1][r].reduce((s, n) => s + n, 0)
-      rows.push([REPORT_ROW_LABELS[r], ...count[1][r].map(String), String(total)])
+      const vals = monthCols.map((col) => count[1][r][col])
+      const total = vals.reduce((s, n) => s + n, 0)
+      rows.push([REPORT_ROW_LABELS[r], ...vals.map(String), String(total)])
     }
 
     const csvContent = rows.map((row) => row.map(escape).join(',')).join('\r\n')
@@ -184,7 +205,7 @@ export default function Reports() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `SO-WorkSlip-Reports-${year}-${new Date().toISOString().slice(0, 10)}.csv`
+    a.download = `SO-WorkSlip-Reports-${qLabel}-${new Date().toISOString().slice(0, 10)}.csv`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -213,12 +234,27 @@ export default function Reports() {
               ))}
             </select>
           </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label" style={{ color: 'rgba(255,255,255,0.8)' }}>Quarter</label>
+            <select
+              value={reportQuarter}
+              onChange={(e) => setReportQuarter(Number(e.target.value) as 0 | 1 | 2 | 3 | 4)}
+              className="form-select"
+              style={{ minWidth: 160 }}
+            >
+              <option value={0}>All Quarters</option>
+              <option value={1}>Q1 — Jan, Feb, Mar</option>
+              <option value={2}>Q2 — Apr, May, Jun</option>
+              <option value={3}>Q3 — Jul, Aug, Sep</option>
+              <option value={4}>Q4 — Oct, Nov, Dec</option>
+            </select>
+          </div>
           {isAdmin && (
             <button
               type="button"
               className="reports-download-btn"
               onClick={downloadTotals}
-              disabled={slips.length === 0}
+              disabled={filteredSlips.length === 0}
             >
               ⬇ Download CSV
             </button>
@@ -232,7 +268,7 @@ export default function Reports() {
           <div className="report-stat-icon">📋</div>
           <div className="report-stat-info">
             <span className="report-stat-label">Total Slips</span>
-            <span className="report-stat-value">{slips.length}</span>
+            <span className="report-stat-value">{filteredSlips.length}</span>
           </div>
         </div>
         <div className="report-stat-card report-stat-hardware">
@@ -253,21 +289,21 @@ export default function Reports() {
           <div className="report-stat-icon">🏢</div>
           <div className="report-stat-info">
             <span className="report-stat-label">In House</span>
-            <span className="report-stat-value">{slips.filter((s) => s.areaInHouse).length}</span>
+            <span className="report-stat-value">{filteredSlips.filter((s) => s.areaInHouse).length}</span>
           </div>
         </div>
         <div className="report-stat-card report-stat-onsite">
           <div className="report-stat-icon">📍</div>
           <div className="report-stat-info">
             <span className="report-stat-label">On Site</span>
-            <span className="report-stat-value">{slips.filter((s) => s.areaOnSite).length}</span>
+            <span className="report-stat-value">{filteredSlips.filter((s) => s.areaOnSite).length}</span>
           </div>
         </div>
         <div className="report-stat-card report-stat-interagency">
           <div className="report-stat-icon">🤝</div>
           <div className="report-stat-info">
             <span className="report-stat-label">Interagency</span>
-            <span className="report-stat-value">{slips.filter((s) => s.areaInteragency).length}</span>
+            <span className="report-stat-value">{filteredSlips.filter((s) => s.areaInteragency).length}</span>
           </div>
         </div>
       </div>

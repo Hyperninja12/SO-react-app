@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useRef } from 'react'
 import { useAuth } from './AuthContext'
 import { getSlips, updateSlip } from './store.ts'
 import {
+  OFFICES_IN_HOUSE,
   OFFICES_ON_SITE,
   OFFICES_INTERAGENCY,
   BARANGAY_OFFICES,
@@ -10,7 +11,7 @@ import {
   QUARTER_OPTIONS,
   getQuarterFromDate,
 } from './constants.ts'
-import { OFFICES_IN_HOUSE } from "./types.ts"
+
 import type { WorkSlipEntry } from './types.ts'
 import './ViewData.css'
 

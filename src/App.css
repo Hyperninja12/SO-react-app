@@ -34,24 +34,38 @@ body {
   font-size: 15px;
   line-height: 1.5;
   color: var(--text-main);
-  background-color: var(--bg-app);
-  background-image: 
-    radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.25) 0%, transparent 60%),
-    radial-gradient(circle, rgba(0, 0, 0, 0.2) 2px, transparent 2px);
-  background-size: 100vw 600px, 32px 32px;
-  background-position: center top, center center;
+  background-color: #f4fbf7;
+  background-image:
+    radial-gradient(ellipse 80% 55% at 50% 0%, rgba(16, 185, 129, 0.18) 0%, transparent 70%),
+    linear-gradient(175deg, #edfdf5 0%, #f4fbf7 40%, #ffffff 100%);
   background-attachment: fixed;
+  position: relative;
+}
+
+/* Tagum City Seal — centered ghost watermark */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url('/Tagum-City.jpg');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  opacity: 0.50;
+  pointer-events: none;
+  z-index: 0;
+  filter: grayscale(20%) blur(0.5px);
 }
 
 /* Global Dashboard Layout Rules */
 .dashboard-layout {
-  max-width: 1200px;
   width: 100%;
-  margin: 0 auto;
+  max-width: 100%;
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  box-sizing: border-box;
 }
 
 .dashboard-grid {
@@ -65,8 +79,9 @@ body {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
-  overflow: hidden;
   transition: box-shadow 0.2s ease;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .dashboard-card:hover {
@@ -133,14 +148,30 @@ body {
 
 #app {
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  position: relative;
+  z-index: 1;
 }
 
-/* Main content area gets space below navbar */
-#app> :last-child {
+/* ── Sidebar-aware Layout Shell ─────────────────── */
+
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.app-main {
   flex: 1;
+  margin-left: 72px;
+  min-height: 100vh;
+  min-width: 0;
   padding-bottom: 2rem;
+  overflow-x: hidden;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* When sidebar is expanded (hovered), push main content over */
+.app-shell:has(.app-sidebar:not(.collapsed)) .app-main {
+  margin-left: 260px;
 }
 
 .app-loading {

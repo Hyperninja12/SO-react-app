@@ -12,7 +12,8 @@ import {
   QUARTER_OPTIONS,
   getQuarterFromDate,
 } from './constants.ts'
-import { OFFICES_IN_HOUSE } from "./types.ts";
+import { OFFICES_IN_HOUSE } from "./constants.ts";
+
 import './TechWorkSlip.css'
 
 export default function TechWorkSlip() {
@@ -25,6 +26,7 @@ export default function TechWorkSlip() {
   const [areaInteragency, setAreaInteragency] = useState(false)
   const [selectedOffices, setSelectedOffices] = useState<string[]>([])
   const [schoolName, setSchoolName] = useState('')
+  const [selectedBarangay, setSelectedBarangay] = useState('')
   const [officesOpen, setOfficesOpen] = useState(false)
   const officesRef = useRef<HTMLDivElement>(null)
   const [timeStarted, setTimeStarted] = useState('')
@@ -91,6 +93,7 @@ export default function TechWorkSlip() {
     setAreaInteragency(draft.areaInteragency)
     setSelectedOffices([...draft.offices])
     setSchoolName((draft as { schoolName?: string }).schoolName ?? '')
+    setSelectedBarangay((draft as { selectedBarangay?: string }).selectedBarangay ?? '')
     setTimeStarted(draft.timeStarted)
     setTimeEnded(draft.timeEnded)
     const reports = (draft as { technicalReports?: { request: string; actionDone?: string; recommendation: string }[] }).technicalReports
@@ -124,13 +127,19 @@ export default function TechWorkSlip() {
     const list: string[] = []
     if (areaInHouse) list.push(...OFFICES_IN_HOUSE)
     if (areaOnSite) list.push(...OFFICES_ON_SITE)
-    if (areaInteragency) list.push(...OFFICES_INTERAGENCY, ...BARANGAY_OFFICES)
+    if (areaInteragency) list.push(...OFFICES_INTERAGENCY)
     return list
   }, [areaInHouse, areaOnSite, areaInteragency])
 
   useEffect(() => {
     setSelectedOffices((prev) => prev.filter((o) => availableOffices.includes(o)))
   }, [availableOffices])
+
+  useEffect(() => {
+    if (!selectedOffices.includes('BARANGAY OFFICES')) {
+      setSelectedBarangay('')
+    }
+  }, [selectedOffices])
 
   const toggleOffice = (office: string) => {
     setSelectedOffices((prev) =>
@@ -227,6 +236,7 @@ export default function TechWorkSlip() {
         areaInteragency,
         offices: [...selectedOffices],
         schoolName: selectedOffices.includes('DEP-ED') ? (schoolName?.trim() || undefined) : undefined,
+        selectedBarangay: selectedOffices.includes('BARANGAY OFFICES') ? (selectedBarangay?.trim() || undefined) : undefined,
         timeStarted,
         timeEnded,
         actionDone: reportRows[0]?.request?.trim() ?? '',
@@ -250,6 +260,7 @@ export default function TechWorkSlip() {
       setAreaInteragency(false)
       setSelectedOffices([])
       setSchoolName('')
+      setSelectedBarangay('')
       setTimeStarted('')
       setTimeEnded('')
       setReportRows([{ id: '1', request: '', actionDone: '', recommendation: '' }])
@@ -284,6 +295,7 @@ export default function TechWorkSlip() {
       areaInteragency,
       offices: [...selectedOffices],
       schoolName: selectedOffices.includes('DEP-ED') ? (schoolName?.trim() || undefined) : undefined,
+      selectedBarangay: selectedOffices.includes('BARANGAY OFFICES') ? (selectedBarangay?.trim() || undefined) : undefined,
       timeStarted,
       timeEnded,
       actionDone: reportRows[0]?.request ?? '',
@@ -393,12 +405,28 @@ export default function TechWorkSlip() {
 
                 <div className="form-group" ref={officesRef} style={{ position: 'relative' }}>
                   <label className="form-label">OFFICES</label>
-                  <button type="button" className={`form-select ${errors.offices ? 'error' : ''}`} onClick={() => setOfficesOpen((o) => !o)} onBlur={handleBlur('offices')} style={{ textAlign: 'left', minHeight: '44px' }}>
-                    {selectedOffices.length === 0 ? 'Select offices…' : `${selectedOffices.length} selected`}
+                  <button
+                    type="button"
+                    className={`offices-dropdown ${errors.offices ? 'error' : ''}`}
+                    onClick={() => setOfficesOpen((o) => !o)}
+                    onBlur={handleBlur('offices')}
+                  >
+                    <span className="offices-btn-left">
+                      <span className="offices-btn-icon">🏢</span>
+                      <span className={`offices-btn-text ${selectedOffices.length > 0 ? 'has-selection' : ''}`}>
+                        {selectedOffices.length === 0 ? 'Select offices…' : selectedOffices.join(', ')}
+                      </span>
+                    </span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                      {selectedOffices.length > 0 && (
+                        <span className="offices-btn-badge">{selectedOffices.length}</span>
+                      )}
+                      <span className={`offices-btn-chevron ${officesOpen ? 'open' : ''}`}>▼</span>
+                    </span>
                   </button>
                   {errors.offices && <span className="field-error">{errors.offices}</span>}
                   {officesOpen && (
-                    <div className="offices-dropdown-panel" style={{ width: '100%', top: '100%', marginTop: '4px' }}>
+                    <div className="offices-dropdown-panel">
                       {availableOffices.length === 0 ? (
                         <div className="offices-empty">Select an area first</div>
                       ) : (
@@ -416,6 +444,22 @@ export default function TechWorkSlip() {
                   <div className="form-group">
                     <label className="form-label">School name (DEP-ED)</label>
                     <input type="text" value={schoolName} onChange={(e) => setSchoolName(e.target.value)} placeholder="e.g. Tagum City National High School" className="form-input" />
+                  </div>
+                )}
+
+                {selectedOffices.includes('BARANGAY OFFICES') && (
+                  <div className="form-group">
+                    <label className="form-label">Select Barangay</label>
+                    <select
+                      value={selectedBarangay}
+                      onChange={(e) => setSelectedBarangay(e.target.value)}
+                      className="form-select"
+                    >
+                      <option value="">Select barangay…</option>
+                      {BARANGAY_OFFICES.map((brgy) => (
+                        <option key={brgy} value={brgy}>{brgy}</option>
+                      ))}
+                    </select>
                   </div>
                 )}
               </div>

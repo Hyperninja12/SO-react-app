@@ -3,7 +3,7 @@ export const OFFICES_IN_HOUSE = [
   "CIPO/TCBIC", "NEGOSYO CENTER", "GSO-UTILITY", "BPLO", "CBO", "CLO",
   "CACCO", "CMO-SECRETARY", "CMO-BACKSTOPPING/FISCAL MGT.",
   "CMO-SPECIAL PERMITS", "CMO-ADMIN", "CMO-SPECIAL PROGRAMS/PROJECT CO",
-  "CMO-IAS", "CMO-LIBRARY", "CMO-SPM", "CMO-EDUKASYON", "CMO-GAD",
+  "CMO-IAS", "CMO-LIBRARY", "CMO-SPM", "CMO-EDUKASYON", "CMO-GAD", "CMO-HOUSEKEEPPING",
   "CMO-MUSLIM AFFAIRS", "PEESO", "CHRMO", "BAC", "CPDO", "CPDO-MRP",
   "SP SECRETARIAT", "CICTMO", "CVMO", "COUNCILOR REVITA",
   "COUNCILOR CAASI", "COUNCILOR ELLIOT", "COUNCILOR AALA",
@@ -28,7 +28,7 @@ export const BARANGAY_OFFICES = [
   "Apokon", "Visayan", "La Filipina", "Mankilam", "Magugpo South",
   "Magugpo Poblacion", "Magugpo East", "Magugpo West", "San Isidro",
   "Nueva Fuerza", "Madaum", "Busaon", "Pandapan", "Liboganon",
-  "New Balamban", "Cuambogan", "Canocotan", "Pagsabangan", "Canocotan"
+  "New Balamban", "Cuambogan", "Canocotan", "Pagsabangan"
 ] as const
 
 export const TECHNICIANS = [
