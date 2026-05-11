@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from 'react'
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, CartesianGrid, LabelList } from 'recharts'
 import { getSlips } from './store.ts'
 import { getRequestCategory, getQuarterFromDate } from './constants.ts'
 import type { WorkSlipEntry } from './types.ts'
@@ -53,6 +53,21 @@ function getSection(slip: WorkSlipEntry): 0 | 1 | null {
   return null
 }
 
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="custom-chart-tooltip">
+        <p className="custom-chart-tooltip-label">{label}</p>
+        <div className="custom-chart-tooltip-item">
+          <span className="label">Total Slips</span>
+          <span className="value">{payload[0].value}</span>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
 export default function Reports() {
   const { user } = useAuth()
   const role = user?.role?.toLowerCase() || ''
@@ -62,6 +77,7 @@ export default function Reports() {
   const [loading, setLoading] = useState(true)
   const [reportYear, setReportYear] = useState(() => new Date().getFullYear())
   const [reportQuarter, setReportQuarter] = useState<0 | 1 | 2 | 3 | 4>(0)
+  const [reportMonth, setReportMonth] = useState<number>(0)
 
   useEffect(() => {
     const loadSlips = async () => {
@@ -73,7 +89,7 @@ export default function Reports() {
     loadSlips()
   }, [])
 
-  // Slips filtered by selected year + quarter
+  // Slips filtered by selected year + quarter + month
   const filteredSlips = useMemo(() => {
     return slips.filter((s) => {
       if (!s.date) return false
@@ -83,9 +99,12 @@ export default function Reports() {
         const q = s.quarter ?? getQuarterFromDate(s.date)
         if (q !== reportQuarter) return false
       }
+      if (reportMonth !== 0) {
+        if ((d.getMonth() + 1) !== reportMonth) return false
+      }
       return true
     })
-  }, [slips, reportYear, reportQuarter])
+  }, [slips, reportYear, reportQuarter, reportMonth])
 
   const hardwareCount = useMemo(() => filteredSlips.filter((s) => getRequestCategory(s.actionDone) === 'hardware' || s.actionDone === 'Printer isolation (reset,installation, printer sharing, and checking)').length, [filteredSlips])
   const softwareCount = useMemo(() => filteredSlips.filter((s) => getRequestCategory(s.actionDone) === 'software' || s.actionDone === 'Printer isolation (reset,installation, printer sharing, and checking)').length, [filteredSlips])
@@ -157,7 +176,7 @@ export default function Reports() {
       3: [6,7,8],
       4: [9,10,11],
     }
-    const monthCols = quarterMonthRanges[reportQuarter]
+    const monthCols = reportMonth !== 0 ? [reportMonth - 1] : quarterMonthRanges[reportQuarter]
     const monthLabels = monthCols.map((i) => allMonthLabels[i])
 
     type CountGrid = number[][][]
@@ -180,7 +199,7 @@ export default function Reports() {
       }
     }
 
-    const qLabel = reportQuarter === 0 ? `${year}` : `${year}-Q${reportQuarter}`
+    const qLabel = reportMonth !== 0 ? `${year}-${allMonthLabels[reportMonth - 1]}` : (reportQuarter === 0 ? `${year}` : `${year}-Q${reportQuarter}`)
     const escape = (cell: string | number) => `"${String(cell).replace(/"/g, '""')}"`
     const rows: string[][] = []
 
@@ -238,7 +257,10 @@ export default function Reports() {
             <label className="form-label" style={{ color: 'rgba(255,255,255,0.8)' }}>Quarter</label>
             <select
               value={reportQuarter}
-              onChange={(e) => setReportQuarter(Number(e.target.value) as 0 | 1 | 2 | 3 | 4)}
+              onChange={(e) => {
+                setReportQuarter(Number(e.target.value) as 0 | 1 | 2 | 3 | 4)
+                setReportMonth(0)
+              }}
               className="form-select"
               style={{ minWidth: 160 }}
             >
@@ -249,6 +271,47 @@ export default function Reports() {
               <option value={4}>Q4 — Oct, Nov, Dec</option>
             </select>
           </div>
+          {reportQuarter !== 0 && (
+            <div className="form-group" style={{ marginBottom: 0 }}>
+              <label className="form-label" style={{ color: 'rgba(255,255,255,0.8)' }}>Month</label>
+              <select
+                value={reportMonth}
+                onChange={(e) => setReportMonth(Number(e.target.value))}
+                className="form-select"
+                style={{ minWidth: 120 }}
+              >
+                <option value={0}>All Months</option>
+                {reportQuarter === 1 && (
+                  <>
+                    <option value={1}>January</option>
+                    <option value={2}>February</option>
+                    <option value={3}>March</option>
+                  </>
+                )}
+                {reportQuarter === 2 && (
+                  <>
+                    <option value={4}>April</option>
+                    <option value={5}>May</option>
+                    <option value={6}>June</option>
+                  </>
+                )}
+                {reportQuarter === 3 && (
+                  <>
+                    <option value={7}>July</option>
+                    <option value={8}>August</option>
+                    <option value={9}>September</option>
+                  </>
+                )}
+                {reportQuarter === 4 && (
+                  <>
+                    <option value={10}>October</option>
+                    <option value={11}>November</option>
+                    <option value={12}>December</option>
+                  </>
+                )}
+              </select>
+            </div>
+          )}
           {isAdmin && (
             <button
               type="button"
@@ -319,15 +382,24 @@ export default function Reports() {
               <h2 className="report-chart-title">Work Slips by Month</h2>
             </div>
             <div className="card-body">
-              <ResponsiveContainer width="100%" height={340}>
-                <BarChart data={chartData} margin={{ top: 16, right: 16, left: 16, bottom: 16 }}>
-                  <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                  <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
-                  <Tooltip />
-                  <Bar dataKey="count" name="Slips" radius={[4, 4, 0, 0]}>
-                    {chartData.map((_, i) => (
-                      <Cell key={i} fill="#10b981" />
-                    ))}
+              <ResponsiveContainer width="100%" height={360}>
+                <BarChart data={chartData} margin={{ top: 35, right: 20, left: 20, bottom: 10 }}>
+                  <defs>
+                    <linearGradient id="premiumEmerald" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#34d399" stopOpacity={1} />
+                      <stop offset="100%" stopColor="#059669" stopOpacity={0.9} />
+                    </linearGradient>
+                    <filter id="glow" x="-10%" y="-10%" width="120%" height="120%">
+                      <feGaussianBlur stdDeviation="2" result="blur" />
+                      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                    </filter>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <XAxis dataKey="name" tick={{ fontSize: 13, fill: '#64748b', fontWeight: 600 }} axisLine={false} tickLine={false} dy={12} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 13, fill: '#64748b' }} axisLine={false} tickLine={false} dx={-10} />
+                  <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(241, 245, 249, 0.6)' }} />
+                  <Bar dataKey="count" name="Slips" radius={[8, 8, 0, 0]} fill="url(#premiumEmerald)" maxBarSize={80} animationDuration={1000} filter="url(#glow)">
+                    <LabelList dataKey="count" position="top" style={{ fill: '#0f172a', fontSize: '14px', fontWeight: '700' }} dy={-8} />
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>

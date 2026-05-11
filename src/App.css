@@ -81,7 +81,7 @@ body::before {
   box-shadow: var(--shadow-sm);
   transition: box-shadow 0.2s ease;
   max-width: 100%;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .dashboard-card:hover {
@@ -92,6 +92,8 @@ body::before {
   padding: 1.5rem 1.75rem;
   border-bottom: 1px solid var(--border-color);
   background: var(--bg-surface);
+  border-top-left-radius: calc(var(--radius-lg) - 1px);
+  border-top-right-radius: calc(var(--radius-lg) - 1px);
 }
 
 .card-title {
@@ -165,7 +167,7 @@ body::before {
   min-height: 100vh;
   min-width: 0;
   padding-bottom: 2rem;
-  overflow-x: hidden;
+  overflow-x: clip;
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 

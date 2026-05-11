@@ -1,34 +1,35 @@
 export const OFFICES_IN_HOUSE = [
-  "CASSO", "CTO", "CHOUSING", "COMELEC", "CEO", "CCRO", "CSWD", "PDAO",
-  "CIPO/TCBIC", "NEGOSYO CENTER", "GSO-UTILITY", "BPLO", "CBO", "CLO",
-  "CACCO", "CMO-SECRETARY", "CMO-BACKSTOPPING/FISCAL MGT.",
-  "CMO-SPECIAL PERMITS", "CMO-ADMIN", "CMO-SPECIAL PROGRAMS/PROJECT CO",
-  "CMO-IAS", "CMO-LIBRARY", "CMO-SPM", "CMO-EDUKASYON", "CMO-GAD", "CMO-HOUSEKEEPPING",
-  "CMO-MUSLIM AFFAIRS", "PEESO", "CHRMO", "BAC", "CPDO", "CPDO-MRP",
-  "SP SECRETARIAT", "CICTMO", "CVMO", "COUNCILOR REVITA",
-  "COUNCILOR CAASI", "COUNCILOR ELLIOT", "COUNCILOR AALA",
-  "COUNCILOR COQUILLA", "COUNCILOR PEREZ/IPMR", "COUNCILOR UY-SALAZAR",
-  "COUNCILOR CATAYAS", "COUNCILOR LEMOS", "COUNCILOR WAKAN",
-  "COUNCILOR ONG", "SKCF DILG", "ABC", "CIO", "COA", "PCSO", "TCYDO", "LYDO"
+  "ABC", "BAC", "BPLO", "CACCO", "CASSO", "CBO", "CCRO", "CEO", "CHOUSING",
+  "CHRMO", "CICTMO", "CIO", "CIPO/TCBIC", "CLO", "CMO-ADMIN",
+  "CMO-BACKSTOPPING/FISCAL MGT.", "CMO-EDUKASYON", "CMO-GAD",
+  "CMO-HOUSEKEEPPING", "CMO-IAS", "CMO-LIBRARY", "CMO-MUSLIM AFFAIRS",
+  "CMO-SECRETARY", "CMO-SPECIAL PERMITS", "CMO-SPECIAL PROGRAMS/PROJECT CO",
+  "CMO-SPM", "COA", "COMELEC", "COUNCILOR AALA", "COUNCILOR CAASI",
+  "COUNCILOR CATAYAS", "COUNCILOR COQUILLA", "COUNCILOR ELLIOT",
+  "COUNCILOR LEMOS", "COUNCILOR ONG", "COUNCILOR PEREZ/IPMR",
+  "COUNCILOR REVITA", "COUNCILOR UY-SALAZAR", "COUNCILOR WAKAN",
+  "CPDO", "CPDO-MRP", "CSWD", "CTO", "CVMO", "GSO-UTILITY", "LYDO",
+  "NEGOSYO CENTER", "PCSO", "PDAO", "PEESO", "SKCF DILG", "SP SECRETARIAT",
+  "TCYDO"
 ] as const
 
 export const OFFICES_ON_SITE = [
-  "CEO – Motorpool", "CEO – Fabrication", "CEO – Maintenance",
-  "CEO – Electrical", "CMO – Sports", "Tourism", "CLibrary", "CVET",
-  "CVET-Slaughter", "CSU", "TMU", "CAGRO", "CENRO", "CADAC",
-  "CHO-CANOCOTAN", "CHO-MABINI", "CDRRMO", "CEEO", "CARCHO",
-  "CMO-INSPECTORATE", "GSO-PSD", "GSO-ADMIN", "CEO-CONSTRUCTION", "CMO-MUSIC"
+  "CADAC", "CAGRO", "CARCHO", "CDRRMO", "CEEO", "CENRO", "CEO-CONSTRUCTION",
+  "CEO – Electrical", "CEO – Fabrication", "CEO – Maintenance",
+  "CEO – Motorpool", "CHO-CANOCOTAN", "CHO-MABINI", "CLibrary",
+  "CMO-INSPECTORATE", "CMO-MUSIC", "CMO – Sports", "CSU", "CVET",
+  "CVET-Slaughter", "GSO-ADMIN", "GSO-PSD", "TMU", "Tourism"
 ] as const
 
 export const OFFICES_INTERAGENCY = [
-  "DEP-ED", "PAO", "PNP", "BJMP", "BARANGAY OFFICES"
+  "BARANGAY OFFICES", "BJMP", "DEP-ED", "PAO", "PNP"
 ] as const
 
 export const BARANGAY_OFFICES = [
-  "Apokon", "Visayan", "La Filipina", "Mankilam", "Magugpo South",
-  "Magugpo Poblacion", "Magugpo East", "Magugpo West", "San Isidro",
-  "Nueva Fuerza", "Madaum", "Busaon", "Pandapan", "Liboganon",
-  "New Balamban", "Cuambogan", "Canocotan", "Pagsabangan"
+  "Apokon", "Busaon", "Canocotan", "Cuambogan", "La Filipina", "Liboganon",
+  "Madaum", "Magugpo East", "Magugpo Poblacion", "Magugpo South", "Magugpo West",
+  "Mankilam", "New Balamban", "Nueva Fuerza", "Pagsabangan", "Pandapan",
+  "San Isidro", "Visayan"
 ] as const
 
 export const TECHNICIANS = [

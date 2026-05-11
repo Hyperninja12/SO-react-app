@@ -33,6 +33,20 @@
   pointer-events: none;
 }
 
+.login-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('/Tagum-City.jpg');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  opacity: 0.25;
+  filter: grayscale(50%) contrast(1.1);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
 /* Glassmorphic Window */
 .login-window {
   position: relative;

@@ -59,6 +59,8 @@ export default function ViewData() {
   const [filterArea, setFilterArea] = useState<string>('')
   const [filterOffice, setFilterOffice] = useState<string>('')
   const [filterQuarter, setFilterQuarter] = useState<string>('')
+  const [filterMonth, setFilterMonth] = useState<string>('')
+  const filterKey = `${search}-${filterArea}-${filterOffice}-${filterQuarter}-${filterMonth}`
   const [editingId, setEditingId] = useState<string | null>(null)
   const [form, setForm] = useState(emptyForm)
   const [reportRows, setReportRows] = useState<Array<{ id: string; request: string; actionDone: string; recommendation: string }>>([])
@@ -204,8 +206,16 @@ export default function ViewData() {
       const qNum = Number(filterQuarter) as 1 | 2 | 3 | 4
       list = list.filter((s) => (s.quarter ?? getQuarterFromDate(s.date)) === qNum)
     }
+    if (filterMonth) {
+      const mNum = Number(filterMonth)
+      list = list.filter((s) => {
+        if (!s.date) return false
+        const d = new Date(s.date + 'T12:00:00')
+        return (d.getMonth() + 1) === mNum
+      })
+    }
     return list
-  }, [slips, search, filterArea, filterOffice, filterQuarter, refresh])
+  }, [slips, search, filterArea, filterOffice, filterQuarter, filterMonth, refresh])
 
   const allOffices = useMemo(() => {
     const set = new Set<string>()
@@ -223,7 +233,7 @@ export default function ViewData() {
       return parts.join('; ')
     }
     const quarterStr = (s: WorkSlipEntry) => `Q${s.quarter ?? getQuarterFromDate(s.date)}`
-    const rows = slips.map((s) => [
+    const rows = filtered.map((s) => [
       s.soNumber,
       s.date,
       quarterStr(s),
@@ -249,7 +259,14 @@ export default function ViewData() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `SO-WorkSlip-Report-${new Date().toISOString().slice(0, 10)}.csv`
+    const filterInfo = [
+      filterArea,
+      filterOffice,
+      filterQuarter ? `Q${filterQuarter}` : '',
+      filterMonth ? `M${filterMonth}` : ''
+    ].filter(Boolean).join('-')
+    
+    a.download = `SO-WorkSlip-Report${filterInfo ? '-' + filterInfo : ''}-${new Date().toISOString().slice(0, 10)}.csv`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -297,13 +314,49 @@ export default function ViewData() {
         </div>
         <div className="form-group" style={{ marginBottom: 0, minWidth: '150px' }}>
           <label className="form-label">📅 Quarter</label>
-          <select value={filterQuarter} onChange={(e) => setFilterQuarter(e.target.value)} className="form-select">
+          <select value={filterQuarter} onChange={(e) => { setFilterQuarter(e.target.value); setFilterMonth(''); }} className="form-select">
             <option value="">All</option>
             {QUARTER_OPTIONS.map((q) => (
               <option key={q.value} value={q.value}>{q.label}</option>
             ))}
           </select>
         </div>
+        {filterQuarter !== '' && (
+          <div className="form-group" style={{ marginBottom: 0, minWidth: '150px' }}>
+            <label className="form-label">📆 Month</label>
+            <select value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)} className="form-select">
+              <option value="">All Months</option>
+              {filterQuarter === '1' && (
+                <>
+                  <option value="1">January</option>
+                  <option value="2">February</option>
+                  <option value="3">March</option>
+                </>
+              )}
+              {filterQuarter === '2' && (
+                <>
+                  <option value="4">April</option>
+                  <option value="5">May</option>
+                  <option value="6">June</option>
+                </>
+              )}
+              {filterQuarter === '3' && (
+                <>
+                  <option value="7">July</option>
+                  <option value="8">August</option>
+                  <option value="9">September</option>
+                </>
+              )}
+              {filterQuarter === '4' && (
+                <>
+                  <option value="10">October</option>
+                  <option value="11">November</option>
+                  <option value="12">December</option>
+                </>
+              )}
+            </select>
+          </div>
+        )}
         {isAdmin && (
           <button type="button" className="viewdata-download-btn" onClick={downloadReport} disabled={slips.length === 0}>
             ⬇ Download
@@ -331,9 +384,13 @@ export default function ViewData() {
                 <th>Actions</th>
               </tr>
             </thead>
-            <tbody>
-              {filtered.map((s) => (
-                <tr key={s.id} className="animate-fade-in">
+            <tbody key={filterKey}>
+              {filtered.map((s, index) => (
+                <tr 
+                  key={s.id} 
+                  className="animate-slide-up" 
+                  style={{ animationDelay: `${Math.min(index * 40, 600)}ms` }}
+                >
                   <td>{s.soNumber}</td>
                   <td>{s.date}</td>
                   <td>{quarterLabel(s)}</td>

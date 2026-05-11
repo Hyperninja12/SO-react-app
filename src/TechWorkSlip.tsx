@@ -28,7 +28,9 @@ export default function TechWorkSlip() {
   const [schoolName, setSchoolName] = useState('')
   const [selectedBarangay, setSelectedBarangay] = useState('')
   const [officesOpen, setOfficesOpen] = useState(false)
+  const [barangayOpen, setBarangayOpen] = useState(false)
   const officesRef = useRef<HTMLDivElement>(null)
+  const barangayRef = useRef<HTMLDivElement>(null)
   const [timeStarted, setTimeStarted] = useState('')
   const [timeEnded, setTimeEnded] = useState('')
   const [reportRows, setReportRows] = useState<Array<{ id: string; request: string; actionDone: string; recommendation: string }>>([
@@ -50,10 +52,11 @@ export default function TechWorkSlip() {
   useEffect(() => {
     const onOutside = (e: MouseEvent) => {
       if (officesRef.current && !officesRef.current.contains(e.target as Node)) setOfficesOpen(false)
+      if (barangayRef.current && !barangayRef.current.contains(e.target as Node)) setBarangayOpen(false)
     }
-    if (officesOpen) document.addEventListener('click', onOutside)
+    if (officesOpen || barangayOpen) document.addEventListener('click', onOutside)
     return () => document.removeEventListener('click', onOutside)
-  }, [officesOpen])
+  }, [officesOpen, barangayOpen])
 
   useEffect(() => {
     if (draftId) {
@@ -448,18 +451,39 @@ export default function TechWorkSlip() {
                 )}
 
                 {selectedOffices.includes('BARANGAY OFFICES') && (
-                  <div className="form-group">
+                  <div className="form-group" ref={barangayRef} style={{ position: 'relative' }}>
                     <label className="form-label">Select Barangay</label>
-                    <select
-                      value={selectedBarangay}
-                      onChange={(e) => setSelectedBarangay(e.target.value)}
-                      className="form-select"
+                    <button
+                      type="button"
+                      className="offices-dropdown"
+                      onClick={() => setBarangayOpen((o) => !o)}
                     >
-                      <option value="">Select barangay…</option>
-                      {BARANGAY_OFFICES.map((brgy) => (
-                        <option key={brgy} value={brgy}>{brgy}</option>
-                      ))}
-                    </select>
+                      <span className="offices-btn-left">
+                        <span className="offices-btn-icon">📍</span>
+                        <span className={`offices-btn-text ${selectedBarangay ? 'has-selection' : ''}`}>
+                          {selectedBarangay || 'Select barangay…'}
+                        </span>
+                      </span>
+                      <span className={`offices-btn-chevron ${barangayOpen ? 'open' : ''}`}>▼</span>
+                    </button>
+                    {barangayOpen && (
+                      <div className="offices-dropdown-panel">
+                        {BARANGAY_OFFICES.map((brgy) => (
+                          <label key={brgy} className="offices-option">
+                            <input
+                              type="radio"
+                              name="barangay"
+                              checked={selectedBarangay === brgy}
+                              onChange={() => {
+                                setSelectedBarangay(brgy)
+                                setBarangayOpen(false)
+                              }}
+                            />{' '}
+                            {brgy}
+                          </label>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

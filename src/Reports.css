@@ -8,7 +8,9 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 1.5rem;
-  position: relative;
+  position: sticky;
+  top: 1.5rem;
+  z-index: 50;
   overflow: hidden;
   box-shadow: 0 8px 32px rgba(5, 150, 105, 0.25);
 }
@@ -259,4 +261,58 @@
   .reports-stats-grid {
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   }
+}
+
+/* ── Custom Chart Tooltip (Floating Pill Redesign) ── */
+.custom-chart-tooltip {
+  background: #1e293b;
+  border-radius: 12px;
+  padding: 12px 16px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  min-width: 140px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.custom-chart-tooltip-label {
+  margin: 0 0 8px 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 8px;
+}
+
+.custom-chart-tooltip-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.custom-chart-tooltip-item span.label {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.custom-chart-tooltip-item span.label::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+}
+
+.custom-chart-tooltip-item span.value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
 }

@@ -59,6 +59,7 @@
 
 /* inner cards inside slip – glass panels */
 .tech-work-slip .dashboard-card {
+  position: relative;
   background: rgba(255, 255, 255, 0.5) !important;
   backdrop-filter: blur(8px) !important;
   -webkit-backdrop-filter: blur(8px) !important;
@@ -70,6 +71,7 @@
 /* Colored accent borders for form section cards */
 .tech-work-slip .dashboard-card:nth-child(1) {
   border-left: 4px solid #10b981;
+  z-index: 4;
 }
 .tech-work-slip .dashboard-card:nth-child(1) .card-header {
   background: linear-gradient(90deg, rgba(236,253,245,0.5), transparent);
@@ -77,6 +79,7 @@
 
 .tech-work-slip .dashboard-card:nth-child(2) {
   border-left: 4px solid #6366f1;
+  z-index: 3;
 }
 .tech-work-slip .dashboard-card:nth-child(2) .card-header {
   background: linear-gradient(90deg, rgba(238,242,255,0.5), transparent);
@@ -84,6 +87,7 @@
 
 .tech-work-slip .dashboard-card:nth-child(3) {
   border-left: 4px solid #f59e0b;
+  z-index: 2;
 }
 .tech-work-slip .dashboard-card:nth-child(3) .card-header {
   background: linear-gradient(90deg, rgba(255,251,235,0.5), transparent);
@@ -91,6 +95,7 @@
 
 .tech-work-slip .dashboard-card:nth-child(4) {
   border-left: 4px solid #8b5cf6;
+  z-index: 1;
 }
 .tech-work-slip .dashboard-card:nth-child(4) .card-header {
   background: linear-gradient(90deg, rgba(245,243,255,0.5), transparent);
