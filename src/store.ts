@@ -44,6 +44,7 @@ function normalizeEntry(raw: LegacyEntry): WorkSlipEntry {
     areaInteragency: !!rawEntry.areaInteragency,
     offices,
     schoolName: (raw as { schoolName?: string }).schoolName ?? undefined,
+    selectedBarangay: (raw as { selectedBarangay?: string }).selectedBarangay ?? undefined,
     timeStarted: raw.timeStarted ?? '',
     timeEnded: raw.timeEnded ?? '',
     actionDone: raw.actionDone ?? '',

@@ -267,6 +267,24 @@
   color: #fff;
 }
 
+.btn-delete {
+  padding: 6px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  font-weight: 500;
+  color: #991b1b;
+  background: #fef2f2;
+  border: 1px solid #991b1b;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn-delete:hover {
+  background: #991b1b;
+  color: #fff;
+}
+
 .edit-restricted {
   font-size: 12px;
   color: #9ca3af;

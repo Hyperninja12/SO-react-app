@@ -61,6 +61,7 @@
     opacity: 0;
     transform: translateX(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -227,6 +228,7 @@
     opacity: 0;
     height: 0;
   }
+
   to {
     opacity: 1;
     height: 22px;
@@ -355,7 +357,7 @@
   margin-bottom: 8px;
 }
 
-.sidebar-popup-info > div {
+.sidebar-popup-info>div {
   display: flex;
   flex-direction: column;
   gap: 2px;

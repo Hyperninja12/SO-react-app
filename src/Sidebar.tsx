@@ -226,6 +226,11 @@ export default function Sidebar() {
           </div>
         )}
       </div>
+
+      {/* ── Dev Credit ── */}
+      {!collapsed && (
+        <p style={{ textAlign: 'center', fontSize: '0.65rem', fontWeight: 500, color: 'rgba(148,163,184,0.35)', letterSpacing: '0.08em', padding: '4px 0 10px', margin: 0, position: 'relative', zIndex: 1, userSelect: 'none' }}>dev · Ash MGP</p>
+      )}
     </aside>
   )
 }

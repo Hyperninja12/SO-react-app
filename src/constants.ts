@@ -22,7 +22,7 @@ export const OFFICES_ON_SITE = [
 ] as const
 
 export const OFFICES_INTERAGENCY = [
-  "BARANGAY OFFICES", "BJMP", "DEP-ED", "PAO", "PNP"
+  "BARANGAY OFFICES", "BJMP", "DEP-ED", "PAO", "PNP", "RTZ"
 ] as const
 
 export const BARANGAY_OFFICES = [

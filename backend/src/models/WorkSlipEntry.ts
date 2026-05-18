@@ -17,6 +17,8 @@ export interface WorkSlipEntry {
   offices: string[]
   /** When DEP-ED is selected, optional school name */
   schoolName?: string
+  /** When BARANGAY OFFICES is selected, the specific barangay chosen */
+  selectedBarangay?: string
   timeStarted: string
   timeEnded: string
   actionDone: string

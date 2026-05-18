@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { useAuth } from './AuthContext'
-import { getSlips, updateSlip } from './store.ts'
+import { getSlips, updateSlip, deleteSlip } from './store.ts'
 import {
   OFFICES_IN_HOUSE,
   OFFICES_ON_SITE,
@@ -23,6 +23,23 @@ function areaLabel(s: WorkSlipEntry): string {
   return parts.length ? parts.join(', ') : '—'
 }
 
+function formatOffice(o: string, s: WorkSlipEntry): string {
+  if (o === 'DEP-ED' && s.schoolName) return `DEP-ED (${s.schoolName})`
+  if (o === 'BARANGAY OFFICES') {
+    // First check selectedBarangay field, then fall back to legacy: barangay name stored in offices array
+    const brgy = s.selectedBarangay ||
+      s.offices.find(x => (BARANGAY_OFFICES as readonly string[]).includes(x))
+    return brgy ? `Brgy. ${brgy}` : o
+  }
+  return o
+}
+
+function interagencyLabel(s: WorkSlipEntry): string {
+  const interagencyOffices = s.offices.filter(o => (OFFICES_INTERAGENCY as readonly string[]).includes(o))
+  if (interagencyOffices.length === 0) return '—'
+  return interagencyOffices.map(o => formatOffice(o, s)).join('; ')
+}
+
 function quarterLabel(s: WorkSlipEntry): string {
   const q = s.quarter ?? getQuarterFromDate(s.date)
   return `Q${q}`
@@ -37,6 +54,7 @@ const emptyForm: Omit<WorkSlipEntry, 'id' | 'createdAt'> = {
   areaInteragency: false,
   offices: [],
   schoolName: '',
+  selectedBarangay: '',
   timeStarted: '',
   timeEnded: '',
   actionDone: '',
@@ -62,10 +80,13 @@ export default function ViewData() {
   const [filterMonth, setFilterMonth] = useState<string>('')
   const filterKey = `${search}-${filterArea}-${filterOffice}-${filterQuarter}-${filterMonth}`
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [form, setForm] = useState(emptyForm)
   const [reportRows, setReportRows] = useState<Array<{ id: string; request: string; actionDone: string; recommendation: string }>>([])
   const [officesOpen, setOfficesOpen] = useState(false)
+  const [barangayOpen, setBarangayOpen] = useState(false)
   const officesRef = useRef<HTMLDivElement>(null)
+  const barangayRef = useRef<HTMLDivElement>(null)
 
   // Load slips data on component mount, when refresh changes, or when a new slip is submitted elsewhere
   useEffect(() => {
@@ -90,11 +111,12 @@ export default function ViewData() {
     const list: string[] = []
     if (form.areaInHouse) list.push(...OFFICES_IN_HOUSE)
     if (form.areaOnSite) list.push(...OFFICES_ON_SITE)
-    if (form.areaInteragency) list.push(...OFFICES_INTERAGENCY, ...BARANGAY_OFFICES)
+    if (form.areaInteragency) list.push(...OFFICES_INTERAGENCY)
     return list
   }, [form.areaInHouse, form.areaOnSite, form.areaInteragency])
 
   useEffect(() => {
+    if (!editingId) return
     setForm((f) => ({ ...f, offices: f.offices.filter((o) => availableOffices.includes(o)) }))
   }, [availableOffices])
 
@@ -104,6 +126,11 @@ export default function ViewData() {
       setReportRows([])
       return
     }
+    // Extract legacy barangay name stored inside offices array (old format)
+    const barangayInOffices = slip.offices.find(o => (BARANGAY_OFFICES as readonly string[]).includes(o))
+    const cleanOffices = slip.offices.filter(o => !(BARANGAY_OFFICES as readonly string[]).includes(o))
+    const resolvedBarangay = slip.selectedBarangay || barangayInOffices || ''
+
     setForm({
       soNumber: slip.soNumber,
       date: slip.date,
@@ -111,8 +138,9 @@ export default function ViewData() {
       areaInHouse: slip.areaInHouse,
       areaOnSite: slip.areaOnSite,
       areaInteragency: slip.areaInteragency,
-      offices: [...slip.offices],
+      offices: cleanOffices,
       schoolName: slip.schoolName ?? '',
+      selectedBarangay: resolvedBarangay,
       timeStarted: slip.timeStarted,
       timeEnded: slip.timeEnded,
       actionDone: slip.actionDone,
@@ -141,10 +169,11 @@ export default function ViewData() {
   useEffect(() => {
     const onOutside = (e: MouseEvent) => {
       if (officesRef.current && !officesRef.current.contains(e.target as Node)) setOfficesOpen(false)
+      if (barangayRef.current && !barangayRef.current.contains(e.target as Node)) setBarangayOpen(false)
     }
-    if (officesOpen) document.addEventListener('click', onOutside)
+    if (officesOpen || barangayOpen) document.addEventListener('click', onOutside)
     return () => document.removeEventListener('click', onOutside)
-  }, [officesOpen])
+  }, [officesOpen, barangayOpen])
 
   const toggleOffice = (office: string) => {
     setForm((f) => ({
@@ -163,6 +192,14 @@ export default function ViewData() {
     })
     if (success) {
       setEditingId(null)
+      setRefresh((r) => r + 1)
+    }
+  }
+
+  const handleDelete = async (id: string) => {
+    const success = await deleteSlip(id)
+    if (success) {
+      setConfirmDeleteId(null)
       setRefresh((r) => r + 1)
     }
   }
@@ -224,7 +261,7 @@ export default function ViewData() {
   }, [slips])
 
   const downloadReport = () => {
-    const headers = ['SO No', 'Date', 'Quarter', 'Area', 'Offices', 'School', 'Time Started', 'Time Ended', 'Request', 'Technician', 'Requester', 'Approved By', 'Recommendation', 'Printer Brand', 'Printer Model']
+    const headers = ['SO No', 'Date', 'Quarter', 'Area', 'Offices', 'Interagency and Barangay Offices', 'Time Started', 'Time Ended', 'Request', 'Technician', 'Requester', 'Approved By', 'Recommendation', 'Printer Brand', 'Printer Model']
     const areaStr = (s: WorkSlipEntry) => {
       const parts: string[] = []
       if (s.areaInHouse) parts.push('In House')
@@ -238,8 +275,8 @@ export default function ViewData() {
       s.date,
       quarterStr(s),
       areaStr(s),
-      (s.offices || []).join('; '),
-      s.schoolName ?? '',
+      (s.offices || []).map(o => formatOffice(o, s)).join('; '),
+      interagencyLabel(s) === '—' ? '' : interagencyLabel(s),
       s.timeStarted,
       s.timeEnded,
       s.actionDone || '',
@@ -378,7 +415,7 @@ export default function ViewData() {
                 <th>Quarter</th>
                 <th>Area</th>
                 <th>Offices</th>
-                <th>School</th>
+                <th>Interagency and Barangay Offices</th>
                 <th>Time</th>
                 <th>Request</th>
                 <th>Actions</th>
@@ -395,13 +432,16 @@ export default function ViewData() {
                   <td>{s.date}</td>
                   <td>{quarterLabel(s)}</td>
                   <td>{areaLabel(s)}</td>
-                  <td>{s.offices.length ? s.offices.join(', ') : '—'}</td>
-                  <td>{s.schoolName || '—'}</td>
+                  <td>{s.offices.length ? s.offices.map(o => formatOffice(o, s)).join(', ') : '—'}</td>
+                  <td>{interagencyLabel(s)}</td>
                   <td>{s.timeStarted} – {s.timeEnded}</td>
                   <td className="cell-action">{s.actionDone || '—'}</td>
                   <td>
                     {isSuperAdmin ? (
-                      <button type="button" className="btn-edit" onClick={() => setEditingId(s.id)}>Edit</button>
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button type="button" className="btn-edit" onClick={() => setEditingId(s.id)}>Edit</button>
+                        <button type="button" className="btn-delete" onClick={() => setConfirmDeleteId(s.id)}>Delete</button>
+                      </div>
                     ) : (
                       <span className="edit-restricted">View only</span>
                     )}
@@ -477,6 +517,38 @@ export default function ViewData() {
                 </div>
               )}
 
+              {form.offices.includes('BARANGAY OFFICES') && (
+                <div className="form-group" ref={barangayRef} style={{ position: 'relative' }}>
+                  <label className="form-label">Select Barangay</label>
+                  <button
+                    type="button"
+                    className="form-select"
+                    onClick={() => setBarangayOpen((o) => !o)}
+                    style={{ textAlign: 'left' }}
+                  >
+                    {form.selectedBarangay || 'Select barangay…'}
+                  </button>
+                  {barangayOpen && (
+                    <div className="edit-offices-panel">
+                      {BARANGAY_OFFICES.map((brgy) => (
+                        <label key={brgy} className="edit-offices-option">
+                          <input
+                            type="radio"
+                            name="edit-barangay"
+                            checked={form.selectedBarangay === brgy}
+                            onChange={() => {
+                              setForm((f) => ({ ...f, selectedBarangay: brgy }))
+                              setBarangayOpen(false)
+                            }}
+                          />
+                          {brgy}
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="dashboard-grid" style={{ gap: '1rem', marginBottom: '1.5rem' }}>
                 <div className="form-group">
                   <label className="form-label">Time Started</label>
@@ -540,6 +612,36 @@ export default function ViewData() {
           </div>
         </div>
       )}
+      {confirmDeleteId && (() => {
+        const s = slips.find(x => x.id === confirmDeleteId)
+        return (
+          <div className="edit-modal-overlay animate-fade-in" onClick={() => setConfirmDeleteId(null)}>
+            <div className="edit-modal animate-scale-in" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '420px' }}>
+              <div className="edit-modal-header" style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-color)' }}>
+                <h2 className="card-title" style={{ color: '#ef4444' }}>⚠ Delete Work Slip</h2>
+                <button type="button" className="edit-modal-close" onClick={() => setConfirmDeleteId(null)} aria-label="Close">×</button>
+              </div>
+              <div style={{ padding: '1.5rem' }}>
+                <p style={{ color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
+                  Are you sure you want to delete this work slip?
+                </p>
+                <p style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '1.5rem' }}>
+                  SO No: {s?.soNumber} — {s?.date}
+                </p>
+                <p style={{ color: '#ef4444', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
+                  This action cannot be undone.
+                </p>
+                <div className="edit-modal-actions">
+                  <button type="button" className="btn-cancel" onClick={() => setConfirmDeleteId(null)}>Cancel</button>
+                  <button type="button" className="btn-delete" style={{ padding: '0.6rem 1.5rem' }} onClick={() => handleDelete(confirmDeleteId)}>
+                    Yes, Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
     </div>
   )
 }

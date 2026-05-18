@@ -155,6 +155,7 @@ export default function Login({ onLogin }: Props) {
           </div>
         </div>
       )}
+      <p style={{ position: 'absolute', bottom: '1rem', left: '1rem', zIndex: 1, margin: 0, fontSize: '0.5rem', fontWeight: 400, letterSpacing: '0.05em', color: 'rgba(255,255,255,0.15)', userSelect: 'none' }}>dev · Ash MGP</p>
     </div>
   )
 }

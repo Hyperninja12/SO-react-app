@@ -398,7 +398,7 @@ export default function Reports() {
                   <XAxis dataKey="name" tick={{ fontSize: 13, fill: '#64748b', fontWeight: 600 }} axisLine={false} tickLine={false} dy={12} />
                   <YAxis allowDecimals={false} tick={{ fontSize: 13, fill: '#64748b' }} axisLine={false} tickLine={false} dx={-10} />
                   <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(241, 245, 249, 0.6)' }} />
-                  <Bar dataKey="count" name="Slips" radius={[8, 8, 0, 0]} fill="url(#premiumEmerald)" maxBarSize={80} animationDuration={1000} filter="url(#glow)">
+                  <Bar dataKey="count" name="Slips" radius={[10, 10, 0, 0]} fill="url(#premiumEmerald)" maxBarSize={80} animationDuration={1000} filter="url(#glow)">
                     <LabelList dataKey="count" position="top" style={{ fill: '#0f172a', fontSize: '14px', fontWeight: '700' }} dy={-8} />
                   </Bar>
                 </BarChart>
@@ -417,7 +417,7 @@ export default function Reports() {
                   <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                   <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
                   <Tooltip />
-                  <Bar dataKey="count" name="Slips" radius={[4, 4, 0, 0]}>
+                  <Bar dataKey="count" name="Slips" radius={[10, 10, 0, 0]}>
                     {hwSwChartData.map((entry, i) => (
                       <Cell key={i} fill={entry.fill} />
                     ))}
@@ -438,7 +438,17 @@ export default function Reports() {
                 {requestTypeChartData.length > 0 ? (
                   <ResponsiveContainer width="100%" height={280}>
                     <PieChart>
-                      <Pie data={requestTypeChartData} dataKey="count" nameKey="name" cx="50%" cy="50%" outerRadius={80} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                      <Pie 
+                        data={requestTypeChartData} 
+                        dataKey="count" 
+                        nameKey="name" 
+                        cx="50%" 
+                        cy="50%" 
+                        innerRadius={60}
+                        outerRadius={85} 
+                        paddingAngle={5}
+                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      >
                         {requestTypeChartData.map((_, i) => (
                           <Cell key={i} fill={requestTypeChartData[i].fill} />
                         ))}
@@ -461,7 +471,17 @@ export default function Reports() {
                 {technicianChartData.length > 0 ? (
                   <ResponsiveContainer width="100%" height={280}>
                     <PieChart>
-                      <Pie data={technicianChartData} dataKey="count" nameKey="name" cx="50%" cy="50%" outerRadius={80} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                      <Pie 
+                        data={technicianChartData} 
+                        dataKey="count" 
+                        nameKey="name" 
+                        cx="50%" 
+                        cy="50%" 
+                        innerRadius={60}
+                        outerRadius={85} 
+                        paddingAngle={5}
+                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      >
                         {technicianChartData.map((_, i) => (
                           <Cell key={i} fill={technicianChartData[i].fill} />
                         ))}
@@ -486,7 +506,7 @@ export default function Reports() {
                     <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                     <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
                     <Tooltip />
-                    <Bar dataKey="count" name="Slips" radius={[4, 4, 0, 0]} fill="#0d9488" />
+                    <Bar dataKey="count" name="Slips" radius={[10, 10, 0, 0]} fill="#0d9488" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -503,7 +523,7 @@ export default function Reports() {
                     <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                     <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
                     <Tooltip />
-                    <Bar dataKey="count" name="Slips" radius={[4, 4, 0, 0]}>
+                    <Bar dataKey="count" name="Slips" radius={[10, 10, 0, 0]}>
                       {areaChartData.map((entry, i) => (
                         <Cell key={i} fill={entry.fill} />
                       ))}
