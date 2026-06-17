@@ -39,6 +39,8 @@ export const TECHNICIANS = [
   "Balong Callena"
 ] as const
 
+export const PRINTER_ISOLATION_REQUEST = "Printer Isolation (reset, installation, printer sharing, and checking)"
+
 export const REQUEST_TYPES = [
   "Computer Isolation",
   "Software Isolation, Installation and Checking",
@@ -46,7 +48,7 @@ export const REQUEST_TYPES = [
   "Hardware Installation and Checking",
   "Activation of Operating System and MS office",
   "Password Recovery",
-  "Printer Isolation (reset, installation, printer sharing, and checking)"
+  PRINTER_ISOLATION_REQUEST
 ] as const
 
 /** Request types that count as Hardware (for reports) */
@@ -54,7 +56,7 @@ export const REQUEST_HARDWARE = [
   "Computer Isolation",
   "Network Isolation, Installation and Checking",
   "Hardware Installation and Checking",
-  "Printer Isolation (reset, installation, printer sharing, and checking)"
+  PRINTER_ISOLATION_REQUEST
 ] as const
 
 /** Request types that count as Software (for reports) */

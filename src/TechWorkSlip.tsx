@@ -11,6 +11,7 @@ import {
   PRINTER_BRANDS,
   QUARTER_OPTIONS,
   getQuarterFromDate,
+  PRINTER_ISOLATION_REQUEST,
 } from './constants.ts'
 import { OFFICES_IN_HOUSE } from "./constants.ts";
 
@@ -114,7 +115,7 @@ export default function TechWorkSlip() {
 
   const firstRequest = reportRows[0]?.request ?? ''
   useEffect(() => {
-    if (firstRequest !== 'Printer isolation (reset,installation, printer sharing, and checking)') {
+    if (firstRequest !== PRINTER_ISOLATION_REQUEST) {
       setPrinterBrand('')
       setPrinterModel('')
     }
@@ -519,7 +520,7 @@ export default function TechWorkSlip() {
                       {index === 0 && errors.actionDone && <span className="field-error">{errors.actionDone}</span>}
                     </div>
 
-                    {row.request === 'Printer isolation (reset,installation, printer sharing, and checking)' && index === 0 && (
+                    {row.request === PRINTER_ISOLATION_REQUEST && index === 0 && (
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                         <div className="form-group">
                           <label className="form-label">PRINTER BRAND</label>

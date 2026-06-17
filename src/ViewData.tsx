@@ -10,6 +10,7 @@ import {
   TECHNICIANS,
   QUARTER_OPTIONS,
   getQuarterFromDate,
+  PRINTER_ISOLATION_REQUEST,
 } from './constants.ts'
 
 import type { WorkSlipEntry } from './types.ts'
@@ -161,7 +162,7 @@ export default function ViewData() {
 
   useEffect(() => {
     // Clear printer fields if request type is not printer-related
-    if (form.actionDone !== 'Printer isolation (reset,installation, printer sharing, and checking)') {
+    if (form.actionDone !== PRINTER_ISOLATION_REQUEST) {
       setForm((f) => ({ ...f, printerBrand: '', printerModel: '' }))
     }
   }, [form.actionDone])

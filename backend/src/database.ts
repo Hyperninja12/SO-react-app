@@ -48,6 +48,39 @@ export async function initializeDatabase(): Promise<Database> {
     // Column already exists
   }
 
+  // Migrate misspelled Printer Isolation requests in existing data (backwards-compatibility migration)
+  try {
+    // 1. Update actionDone in database
+    await db.run(`
+      UPDATE work_slips
+      SET actionDone = 'Printer Isolation (reset, installation, printer sharing, and checking)'
+      WHERE actionDone = 'Printer isolation (reset,installation, printer sharing, and checking)'
+    `);
+
+    // 2. Update technicalReports JSON in database
+    const slipsToMigrate = await db.all(`
+      SELECT id, technicalReports FROM work_slips 
+      WHERE technicalReports LIKE '%Printer isolation (reset,installation, printer sharing, and checking)%'
+    `);
+    for (const slip of slipsToMigrate) {
+      if (slip.technicalReports) {
+        const reports = JSON.parse(slip.technicalReports);
+        let changed = false;
+        for (const r of reports) {
+          if (r.request === 'Printer isolation (reset,installation, printer sharing, and checking)') {
+            r.request = 'Printer Isolation (reset, installation, printer sharing, and checking)';
+            changed = true;
+          }
+        }
+        if (changed) {
+          await db.run("UPDATE work_slips SET technicalReports = ? WHERE id = ?", [JSON.stringify(reports), slip.id]);
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Failed to run Printer Isolation request migration:', err);
+  }
+
   await db.exec(`
     CREATE TABLE IF NOT EXISTS so_sequence (
       year INTEGER PRIMARY KEY,

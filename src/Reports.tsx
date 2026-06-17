@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect } from 'react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, CartesianGrid, LabelList } from 'recharts'
 import { getSlips } from './store.ts'
-import { getRequestCategory, getQuarterFromDate } from './constants.ts'
+import { getRequestCategory, getQuarterFromDate, PRINTER_ISOLATION_REQUEST } from './constants.ts'
 import type { WorkSlipEntry } from './types.ts'
 import { useAuth } from './AuthContext'
 import './Reports.css'
@@ -36,7 +36,7 @@ const REQUEST_TO_REPORT_ROW: Record<string, number> = {
   'password recovery': 1,
   'network isolation installation and checking': 2,
   'hardware installation and checking': 3,
-  'printer isolation (reset,installation, printer sharing, and checking)': 4,
+  [PRINTER_ISOLATION_REQUEST.toLowerCase()]: 4,
 }
 
 function getReportRowIndex(requestOrActionDone: string): number | null {
@@ -106,8 +106,8 @@ export default function Reports() {
     })
   }, [slips, reportYear, reportQuarter, reportMonth])
 
-  const hardwareCount = useMemo(() => filteredSlips.filter((s) => getRequestCategory(s.actionDone) === 'hardware' || s.actionDone === 'Printer isolation (reset,installation, printer sharing, and checking)').length, [filteredSlips])
-  const softwareCount = useMemo(() => filteredSlips.filter((s) => getRequestCategory(s.actionDone) === 'software' || s.actionDone === 'Printer isolation (reset,installation, printer sharing, and checking)').length, [filteredSlips])
+  const hardwareCount = useMemo(() => filteredSlips.filter((s) => getRequestCategory(s.actionDone) === 'hardware' || s.actionDone === PRINTER_ISOLATION_REQUEST).length, [filteredSlips])
+  const softwareCount = useMemo(() => filteredSlips.filter((s) => getRequestCategory(s.actionDone) === 'software' || s.actionDone === PRINTER_ISOLATION_REQUEST).length, [filteredSlips])
   const hwSwChartData = useMemo(() => [
     { name: 'Hardware', count: hardwareCount, fill: '#166534' },
     { name: 'Software', count: softwareCount, fill: '#1e40af' },
