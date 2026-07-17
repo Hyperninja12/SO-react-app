@@ -21,7 +21,7 @@ export interface WorkSlipEntry {
   actionDone: string
   recommendation: string
   requesterSignature: string
-  technicianName: string
+  technicianNames: string[]
   approvedBy: string
   createdAt: string
   printerBrand?: string

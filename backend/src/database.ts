@@ -1,12 +1,26 @@
 import sqlite3 from 'sqlite3';
 import { open, Database } from 'sqlite';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export async function initializeDatabase(): Promise<Database> {
-  const dbPath = process.env.DB_PATH || './workslips.db';
+  const configuredPath = process.env.DB_PATH?.trim();
+  const dbPath = configuredPath
+    ? path.resolve(process.cwd(), configuredPath)
+    : path.resolve(__dirname, '..', 'workslips.db');
   const db = await open({
     filename: dbPath,
     driver: sqlite3.Database,
   });
+
+  // Enable WAL (Write-Ahead Logging) mode for concurrent read/write support
+  try {
+    await db.exec('PRAGMA journal_mode=WAL;');
+  } catch (e) {
+    console.error('Failed to enable WAL mode:', e);
+  }
 
   await db.exec(`
     CREATE TABLE IF NOT EXISTS work_slips (
@@ -25,6 +39,7 @@ export async function initializeDatabase(): Promise<Database> {
       technicianName TEXT,
       approvedBy TEXT,
       createdAt TEXT,
+      technicianNames TEXT, -- JSON string array
       printerBrand TEXT,
       printerModel TEXT,
       quarter INTEGER,
@@ -44,6 +59,13 @@ export async function initializeDatabase(): Promise<Database> {
   // Add selectedBarangay column if DB was created before this field existed
   try {
     await db.run('ALTER TABLE work_slips ADD COLUMN selectedBarangay TEXT');
+  } catch {
+    // Column already exists
+  }
+
+  // Add technicianNames column if DB was created before this field existed
+  try {
+    await db.run('ALTER TABLE work_slips ADD COLUMN technicianNames TEXT');
   } catch {
     // Column already exists
   }

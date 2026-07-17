@@ -4,7 +4,7 @@ const DRAFTS_KEY = 'tech-work-slip-drafts'
 
 const API_BASE = (import.meta.env.VITE_API_URL as string) ?? ''
 
-type LegacyEntry = WorkSlipEntry & { office?: string; name?: string; mobileNo?: string; units?: string[]; values?: string[]; serials?: string[] }
+type LegacyEntry = WorkSlipEntry & { office?: string; name?: string; mobileNo?: string; units?: string[]; values?: string[]; serials?: string[]; technicianName?: string }
 
 function getQuarterFromDate(dateStr: string): number {
   if (!dateStr) return 1
@@ -50,7 +50,7 @@ function normalizeEntry(raw: LegacyEntry): WorkSlipEntry {
     actionDone: raw.actionDone ?? '',
     recommendation: raw.recommendation ?? '',
     requesterSignature: raw.requesterSignature ?? '',
-    technicianName: raw.technicianName ?? '',
+    technicianNames: Array.isArray(raw.technicianNames) ? raw.technicianNames : (raw.technicianName ? [raw.technicianName] : []),
     approvedBy: raw.approvedBy ?? '',
     createdAt: raw.createdAt,
     printerBrand: rawEntry.printerBrand,

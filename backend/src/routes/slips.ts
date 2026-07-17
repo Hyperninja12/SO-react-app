@@ -100,7 +100,7 @@ export function createSlipRoutes(db: Database) {
         INSERT INTO work_slips (
           id, soNumber, date, areaInHouse, areaOnSite, areaInteragency,
           offices, schoolName, selectedBarangay, timeStarted, timeEnded, actionDone, recommendation,
-          requesterSignature, technicianName, approvedBy, createdAt,
+          requesterSignature, technicianNames, approvedBy, createdAt,
           printerBrand, printerModel, quarter, technicalReports
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, [
@@ -109,7 +109,7 @@ export function createSlipRoutes(db: Database) {
         JSON.stringify(slip.offices), slip.schoolName ?? null, slip.selectedBarangay ?? null,
         slip.timeStarted, slip.timeEnded,
         slip.actionDone, slip.recommendation, slip.requesterSignature,
-        slip.technicianName, slip.approvedBy, slip.createdAt,
+        JSON.stringify(slip.technicianNames), slip.approvedBy, slip.createdAt,
         slip.printerBrand, slip.printerModel, slip.quarter,
         JSON.stringify(slip.technicalReports)
       ]);
@@ -130,7 +130,7 @@ export function createSlipRoutes(db: Database) {
           areaInteragency = ?, offices = ?, schoolName = ?, selectedBarangay = ?,
           timeStarted = ?, timeEnded = ?,
           actionDone = ?, recommendation = ?, requesterSignature = ?,
-          technicianName = ?, approvedBy = ?, printerBrand = ?,
+          technicianNames = ?, approvedBy = ?, printerBrand = ?,
           printerModel = ?, quarter = ?, technicalReports = ?
         WHERE id = ?
       `, [
@@ -139,7 +139,7 @@ export function createSlipRoutes(db: Database) {
         JSON.stringify(slip.offices), slip.schoolName ?? null, slip.selectedBarangay ?? null,
         slip.timeStarted, slip.timeEnded,
         slip.actionDone, slip.recommendation, slip.requesterSignature,
-        slip.technicianName, slip.approvedBy, slip.printerBrand,
+        JSON.stringify(slip.technicianNames), slip.approvedBy, slip.printerBrand,
         slip.printerModel, slip.quarter, JSON.stringify(slip.technicalReports),
         id
       ]);

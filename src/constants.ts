@@ -65,8 +65,9 @@ export const REQUEST_SOFTWARE = [
 ] as const
 
 export function getRequestCategory(actionDone: string): 'hardware' | 'software' | null {
-  if ((REQUEST_HARDWARE as readonly string[]).includes(actionDone)) return 'hardware'
-  if ((REQUEST_SOFTWARE as readonly string[]).includes(actionDone)) return 'software'
+  const normalized = (actionDone || '').trim().toLowerCase()
+  if (REQUEST_HARDWARE.some(h => h.trim().toLowerCase() === normalized)) return 'hardware'
+  if (REQUEST_SOFTWARE.some(s => s.trim().toLowerCase() === normalized)) return 'software'
   return null
 }
 

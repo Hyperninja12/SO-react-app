@@ -29,15 +29,17 @@ export default function TechWorkSlip() {
   const [selectedBarangay, setSelectedBarangay] = useState('')
   const [officesOpen, setOfficesOpen] = useState(false)
   const [barangayOpen, setBarangayOpen] = useState(false)
+  const [techniciansOpen, setTechniciansOpen] = useState(false)
   const officesRef = useRef<HTMLDivElement>(null)
   const barangayRef = useRef<HTMLDivElement>(null)
+  const techniciansRef = useRef<HTMLDivElement>(null)
   const [timeStarted, setTimeStarted] = useState('')
   const [timeEnded, setTimeEnded] = useState('')
   const [reportRows, setReportRows] = useState<Array<{ id: string; request: string; actionDone: string; recommendation: string }>>([
     { id: '1', request: '', actionDone: '', recommendation: '' },
   ])
   const [requesterSignature, setRequesterSignature] = useState('')
-  const [technicianName, setTechnicianName] = useState('')
+  const [technicianNames, setTechnicianNames] = useState<string[]>([])
   const [approvedBy, setApprovedBy] = useState('')
   const [printerBrand, setPrinterBrand] = useState('')
   const [printerModel, setPrinterModel] = useState('')
@@ -53,10 +55,11 @@ export default function TechWorkSlip() {
     const onOutside = (e: MouseEvent) => {
       if (officesRef.current && !officesRef.current.contains(e.target as Node)) setOfficesOpen(false)
       if (barangayRef.current && !barangayRef.current.contains(e.target as Node)) setBarangayOpen(false)
+      if (techniciansRef.current && !techniciansRef.current.contains(e.target as Node)) setTechniciansOpen(false)
     }
-    if (officesOpen || barangayOpen) document.addEventListener('click', onOutside)
+    if (officesOpen || barangayOpen || techniciansOpen) document.addEventListener('click', onOutside)
     return () => document.removeEventListener('click', onOutside)
-  }, [officesOpen, barangayOpen])
+  }, [officesOpen, barangayOpen, techniciansOpen])
 
   useEffect(() => {
     if (draftId) {
@@ -106,7 +109,8 @@ export default function TechWorkSlip() {
       setReportRows([{ id: '1', request: draft.actionDone || '', actionDone: '', recommendation: draft.recommendation || '' }])
     }
     setRequesterSignature(draft.requesterSignature)
-    setTechnicianName(draft.technicianName)
+    const legacyDraft = draft as { technicianNames?: string[]; technicianName?: string }
+    setTechnicianNames(Array.isArray(legacyDraft.technicianNames) ? legacyDraft.technicianNames : (legacyDraft.technicianName ? [legacyDraft.technicianName] : []))
     setApprovedBy(draft.approvedBy)
     setPrinterBrand(draft.printerBrand || '')
     setPrinterModel(draft.printerModel || '')
@@ -114,7 +118,7 @@ export default function TechWorkSlip() {
 
   const firstRequest = reportRows[0]?.request ?? ''
   useEffect(() => {
-    if (firstRequest !== 'Printer isolation (reset,installation, printer sharing, and checking)') {
+    if (firstRequest !== 'Printer Isolation (reset, installation, printer sharing, and checking)') {
       setPrinterBrand('')
       setPrinterModel('')
     }
@@ -161,9 +165,9 @@ export default function TechWorkSlip() {
     const firstActionDone = reportRows[0]?.actionDone?.trim()
     if (touched.actionDone && !firstReq) e.actionDone = 'Select request type for at least one report'
     if (touched.actionDoneText && firstReq && !firstActionDone) e.actionDoneText = 'Action done is required'
-    if (touched.technician && !technicianName.trim()) e.technician = 'Required'
+    if (touched.technician && technicianNames.length === 0) e.technician = 'Select at least one technician'
     return e
-  }, [touched, soSequencePart, selectedOffices, date, areaSelected, timeStarted, timeEnded, reportRows, technicianName])
+  }, [touched, soSequencePart, selectedOffices, date, areaSelected, timeStarted, timeEnded, reportRows, technicianNames])
 
   const canSubmit = useMemo(() => {
     const firstReq = reportRows[0]?.request?.trim()
@@ -172,7 +176,7 @@ export default function TechWorkSlip() {
     return (
       effectiveYY !== '' &&
       validSequence &&
-      technicianName.trim() !== '' &&
+      technicianNames.length > 0 &&
       selectedOffices.length > 0 &&
       date.trim() !== '' &&
       areaSelected &&
@@ -181,7 +185,7 @@ export default function TechWorkSlip() {
       (firstReq ?? '') !== '' &&
       (firstActionDone ?? '') !== ''
     )
-  }, [effectiveYY, soSequencePart, technicianName, selectedOffices, date, areaSelected, timeStarted, timeEnded, reportRows])
+  }, [effectiveYY, soSequencePart, technicianNames, selectedOffices, date, areaSelected, timeStarted, timeEnded, reportRows])
 
   const handleBlur = (field: string) => () => setTouched((t) => ({ ...t, [field]: true }))
 
@@ -211,7 +215,7 @@ export default function TechWorkSlip() {
     const firstActionDone = reportRows[0]?.actionDone?.trim()
     if (
       !effectiveYY ||
-      !technicianName.trim() ||
+      technicianNames.length === 0 ||
       selectedOffices.length === 0 ||
       !date.trim() ||
       !areaSelected ||
@@ -245,7 +249,7 @@ export default function TechWorkSlip() {
         actionDone: reportRows[0]?.request?.trim() ?? '',
         recommendation: reportRows[0]?.recommendation?.trim() ?? '',
         requesterSignature,
-        technicianName,
+        technicianNames,
         approvedBy,
         printerBrand: printerBrand || undefined,
         printerModel: printerModel || undefined,
@@ -268,7 +272,7 @@ export default function TechWorkSlip() {
       setTimeEnded('')
       setReportRows([{ id: '1', request: '', actionDone: '', recommendation: '' }])
       setRequesterSignature('')
-      setTechnicianName('')
+      setTechnicianNames([])
       setApprovedBy('')
       setPrinterBrand('')
       setPrinterModel('')
@@ -304,7 +308,7 @@ export default function TechWorkSlip() {
       actionDone: reportRows[0]?.request ?? '',
       recommendation: reportRows[0]?.recommendation ?? '',
       requesterSignature,
-      technicianName,
+      technicianNames,
       approvedBy,
       printerBrand: printerBrand || undefined,
       printerModel: printerModel || undefined,
@@ -519,7 +523,7 @@ export default function TechWorkSlip() {
                       {index === 0 && errors.actionDone && <span className="field-error">{errors.actionDone}</span>}
                     </div>
 
-                    {row.request === 'Printer isolation (reset,installation, printer sharing, and checking)' && index === 0 && (
+                    {row.request === 'Printer Isolation (reset, installation, printer sharing, and checking)' && index === 0 && (
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                         <div className="form-group">
                           <label className="form-label">PRINTER BRAND</label>
@@ -569,16 +573,38 @@ export default function TechWorkSlip() {
                   <input type="text" value={requesterSignature} onChange={(e) => setRequesterSignature(e.target.value)} className="form-input" />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Technician</label>
-                  <select
-                    value={technicianName}
-                    onChange={(e) => setTechnicianName(e.target.value)}
-                    onBlur={handleBlur('technician')}
-                    className={`form-select ${errors.technician ? 'error' : ''}`}
-                  >
-                    <option value="" disabled>Select Technician</option>
-                    {TECHNICIANS.map((tech) => <option key={tech} value={tech}>{tech}</option>)}
-                  </select>
+                  <label className="form-label">Technicians</label>
+                  <div ref={techniciansRef} style={{ position: 'relative' }}>
+                    <button
+                      type="button"
+                      className={`form-select ${errors.technician ? 'error' : ''}`}
+                      onClick={() => setTechniciansOpen((o) => !o)}
+                      style={{ textAlign: 'left' }}
+                      onBlur={handleBlur('technician')}
+                    >
+                      {technicianNames.length === 0 ? 'Select technicians…' : `${technicianNames.length} selected`}
+                    </button>
+                    {techniciansOpen && (
+                      <div className="edit-offices-panel">
+                        {TECHNICIANS.map((tech) => (
+                          <label key={tech} className="edit-offices-option">
+                            <input
+                              type="checkbox"
+                              checked={technicianNames.includes(tech)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setTechnicianNames([...technicianNames, tech])
+                                } else {
+                                  setTechnicianNames(technicianNames.filter((t) => t !== tech))
+                                }
+                              }}
+                            />
+                            {tech}
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                   {errors.technician && <span className="field-error">{errors.technician}</span>}
                 </div>
               </div>

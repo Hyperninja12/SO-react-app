@@ -8,6 +8,7 @@ import {
   BARANGAY_OFFICES,
   REQUEST_TYPES,
   TECHNICIANS,
+  PRINTER_BRANDS,
   QUARTER_OPTIONS,
   getQuarterFromDate,
 } from './constants.ts'
@@ -60,7 +61,7 @@ const emptyForm: Omit<WorkSlipEntry, 'id' | 'createdAt'> = {
   actionDone: '',
   recommendation: '',
   requesterSignature: '',
-  technicianName: '',
+  technicianNames: [],
   approvedBy: '',
   printerBrand: '',
   printerModel: '',
@@ -85,8 +86,10 @@ export default function ViewData() {
   const [reportRows, setReportRows] = useState<Array<{ id: string; request: string; actionDone: string; recommendation: string }>>([])
   const [officesOpen, setOfficesOpen] = useState(false)
   const [barangayOpen, setBarangayOpen] = useState(false)
+  const [techniciansOpen, setTechniciansOpen] = useState(false)
   const officesRef = useRef<HTMLDivElement>(null)
   const barangayRef = useRef<HTMLDivElement>(null)
+  const techniciansRef = useRef<HTMLDivElement>(null)
 
   // Load slips data on component mount, when refresh changes, or when a new slip is submitted elsewhere
   useEffect(() => {
@@ -146,7 +149,7 @@ export default function ViewData() {
       actionDone: slip.actionDone,
       recommendation: slip.recommendation,
       requesterSignature: slip.requesterSignature,
-      technicianName: slip.technicianName,
+      technicianNames: slip.technicianNames || [],
       approvedBy: slip.approvedBy,
       printerBrand: slip.printerBrand || '',
       printerModel: slip.printerModel || '',
@@ -161,7 +164,7 @@ export default function ViewData() {
 
   useEffect(() => {
     // Clear printer fields if request type is not printer-related
-    if (form.actionDone !== 'Printer isolation (reset,installation, printer sharing, and checking)') {
+    if (form.actionDone !== 'Printer Isolation (reset, installation, printer sharing, and checking)') {
       setForm((f) => ({ ...f, printerBrand: '', printerModel: '' }))
     }
   }, [form.actionDone])
@@ -170,10 +173,11 @@ export default function ViewData() {
     const onOutside = (e: MouseEvent) => {
       if (officesRef.current && !officesRef.current.contains(e.target as Node)) setOfficesOpen(false)
       if (barangayRef.current && !barangayRef.current.contains(e.target as Node)) setBarangayOpen(false)
+      if (techniciansRef.current && !techniciansRef.current.contains(e.target as Node)) setTechniciansOpen(false)
     }
-    if (officesOpen || barangayOpen) document.addEventListener('click', onOutside)
+    if (officesOpen || barangayOpen || techniciansOpen) document.addEventListener('click', onOutside)
     return () => document.removeEventListener('click', onOutside)
-  }, [officesOpen, barangayOpen])
+  }, [officesOpen, barangayOpen, techniciansOpen])
 
   const toggleOffice = (office: string) => {
     setForm((f) => ({
@@ -280,7 +284,7 @@ export default function ViewData() {
       s.timeStarted,
       s.timeEnded,
       s.actionDone || '',
-      s.technicianName || '',
+      (s.technicianNames || []).join('; '),
       s.requesterSignature || '',
       s.approvedBy || '',
       (s.recommendation || '').replace(/\r?\n/g, ' '),
@@ -590,17 +594,59 @@ export default function ViewData() {
                 <button type="button" className="add-report-btn" onClick={addReportRow} style={{ padding: '6px 12px', fontSize: '0.875rem', borderRadius: '6px', marginBottom: '1.5rem' }}>+ Add another report</button>
               </section>
 
+              {reportRows[0]?.request === 'Printer Isolation (reset, installation, printer sharing, and checking)' && (
+                <div className="dashboard-grid" style={{ gap: '1rem', marginBottom: '1.5rem' }}>
+                  <div className="form-group">
+                    <label className="form-label">Printer Brand</label>
+                    <select className="form-select" value={form.printerBrand} onChange={(e) => setForm((f) => ({ ...f, printerBrand: e.target.value }))}>
+                      <option value="">Select brand…</option>
+                      {PRINTER_BRANDS.map((brand) => <option key={brand} value={brand}>{brand}</option>)}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Printer Model</label>
+                    <input type="text" className="form-input" value={form.printerModel} onChange={(e) => setForm((f) => ({ ...f, printerModel: e.target.value }))} placeholder="Enter printer model" />
+                  </div>
+                </div>
+              )}
+
               <div className="dashboard-grid" style={{ gap: '1rem' }}>
                 <div className="form-group">
                   <label className="form-label">Requester (Print Name & Signature)</label>
                   <input type="text" className="form-input" value={form.requesterSignature} onChange={(e) => setForm((f) => ({ ...f, requesterSignature: e.target.value }))} />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Technician</label>
-                  <select className="form-select" value={form.technicianName} onChange={(e) => setForm((f) => ({ ...f, technicianName: e.target.value }))}>
-                    <option value="">Select Technician</option>
-                    {TECHNICIANS.map((tech) => <option key={tech} value={tech}>{tech}</option>)}
-                  </select>
+                  <label className="form-label">Technicians</label>
+                  <div ref={techniciansRef} style={{ position: 'relative' }}>
+                    <button
+                      type="button"
+                      className="form-select"
+                      onClick={() => setTechniciansOpen((o) => !o)}
+                      style={{ textAlign: 'left' }}
+                    >
+                      {form.technicianNames.length === 0 ? 'Select technicians…' : `${form.technicianNames.length} selected`}
+                    </button>
+                    {techniciansOpen && (
+                      <div className="edit-offices-panel">
+                        {TECHNICIANS.map((tech) => (
+                          <label key={tech} className="edit-offices-option">
+                            <input
+                              type="checkbox"
+                              checked={form.technicianNames.includes(tech)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setForm((f) => ({ ...f, technicianNames: [...f.technicianNames, tech] }))
+                                } else {
+                                  setForm((f) => ({ ...f, technicianNames: f.technicianNames.filter((t) => t !== tech) }))
+                                }
+                              }}
+                            />
+                            {tech}
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 

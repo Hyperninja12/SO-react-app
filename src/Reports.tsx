@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect } from 'react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, CartesianGrid, LabelList } from 'recharts'
 import { getSlips } from './store.ts'
-import { getRequestCategory, getQuarterFromDate } from './constants.ts'
+import { getRequestCategory, getQuarterFromDate, REQUEST_TYPES } from './constants.ts'
 import type { WorkSlipEntry } from './types.ts'
 import { useAuth } from './AuthContext'
 import './Reports.css'
@@ -36,7 +36,7 @@ const REQUEST_TO_REPORT_ROW: Record<string, number> = {
   'password recovery': 1,
   'network isolation installation and checking': 2,
   'hardware installation and checking': 3,
-  'printer isolation (reset,installation, printer sharing, and checking)': 4,
+  'printer isolation (reset, installation, printer sharing, and checking)': 4,
 }
 
 function getReportRowIndex(requestOrActionDone: string): number | null {
@@ -106,8 +106,8 @@ export default function Reports() {
     })
   }, [slips, reportYear, reportQuarter, reportMonth])
 
-  const hardwareCount = useMemo(() => filteredSlips.filter((s) => getRequestCategory(s.actionDone) === 'hardware' || s.actionDone === 'Printer isolation (reset,installation, printer sharing, and checking)').length, [filteredSlips])
-  const softwareCount = useMemo(() => filteredSlips.filter((s) => getRequestCategory(s.actionDone) === 'software' || s.actionDone === 'Printer isolation (reset,installation, printer sharing, and checking)').length, [filteredSlips])
+  const hardwareCount = useMemo(() => filteredSlips.filter((s) => getRequestCategory(s.actionDone) === 'hardware').length, [filteredSlips])
+  const softwareCount = useMemo(() => filteredSlips.filter((s) => getRequestCategory(s.actionDone) === 'software').length, [filteredSlips])
   const hwSwChartData = useMemo(() => [
     { name: 'Hardware', count: hardwareCount, fill: '#166534' },
     { name: 'Software', count: softwareCount, fill: '#1e40af' },
@@ -116,19 +116,30 @@ export default function Reports() {
   const requestTypeChartData = useMemo(() => {
     const map = new Map<string, number>()
     filteredSlips.forEach((s) => {
-      const key = s.actionDone || '—'
-      map.set(key, (map.get(key) ?? 0) + 1)
+      let key = (s.actionDone || '').trim()
+      const matched = REQUEST_TYPES.find(r => r.toLowerCase() === key.toLowerCase())
+      if (matched) {
+        map.set(matched, (map.get(matched) ?? 0) + 1)
+      }
     })
     return Array.from(map.entries())
-      .map(([name, count], i) => ({ name: name.length > 30 ? name.slice(0, 28) + '…' : name, fullName: name, count, fill: PIE_COLORS[i % PIE_COLORS.length] }))
+      .map(([name, count], i) => ({
+        name: name.length > 30 ? name.slice(0, 28) + '…' : name,
+        fullName: name,
+        count,
+        fill: PIE_COLORS[i % PIE_COLORS.length]
+      }))
       .sort((a, b) => b.count - a.count)
   }, [filteredSlips])
 
   const technicianChartData = useMemo(() => {
     const map = new Map<string, number>()
     filteredSlips.forEach((s) => {
-      const key = s.technicianName || 'Unassigned'
-      map.set(key, (map.get(key) ?? 0) + 1)
+      if (!s.technicianNames || s.technicianNames.length === 0) return
+      s.technicianNames.forEach((tech) => {
+        if (!tech || !tech.trim()) return
+        map.set(tech.trim(), (map.get(tech.trim()) ?? 0) + 1)
+      })
     })
     return Array.from(map.entries())
       .map(([name, count], i) => ({ name, count, fill: PIE_COLORS[i % PIE_COLORS.length] }))
