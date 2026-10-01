@@ -11,6 +11,21 @@ function getEffectiveYear(): number {
   return new Date().getFullYear();
 }
 
+function parseTechnicians(raw: any): string[] {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === 'string') {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+      if (raw.trim()) return [raw.trim()];
+    } catch {
+      if (raw.trim()) return [raw.trim()];
+    }
+  }
+  return [];
+}
+
 export function createSlipRoutes(db: Database) {
   const router = express.Router();
 
@@ -52,6 +67,7 @@ export function createSlipRoutes(db: Database) {
         ...slip,
         offices: JSON.parse(slip.offices || '[]'),
         technicalReports: JSON.parse(slip.technicalReports || '[]'),
+        technicianNames: parseTechnicians(slip.technicianNames || slip.technicianName),
         areaInHouse: Boolean(slip.areaInHouse),
         areaOnSite: Boolean(slip.areaOnSite),
         areaInteragency: Boolean(slip.areaInteragency),
@@ -76,6 +92,7 @@ export function createSlipRoutes(db: Database) {
         ...slip,
         offices: JSON.parse(slip.offices || '[]'),
         technicalReports: JSON.parse(slip.technicalReports || '[]'),
+        technicianNames: parseTechnicians(slip.technicianNames || slip.technicianName),
         areaInHouse: Boolean(slip.areaInHouse),
         areaOnSite: Boolean(slip.areaOnSite),
         areaInteragency: Boolean(slip.areaInteragency),

@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from 'react'
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, CartesianGrid, LabelList } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, CartesianGrid, LabelList, Legend } from 'recharts'
 import { getSlips } from './store.ts'
 import { getRequestCategory, getQuarterFromDate, REQUEST_TYPES } from './constants.ts'
 import type { WorkSlipEntry } from './types.ts'
@@ -89,11 +89,21 @@ export default function Reports() {
     loadSlips()
   }, [])
 
+  function parseSlipDate(dateStr: string | undefined): Date | null {
+    if (!dateStr) return null
+    const clean = dateStr.trim().slice(0, 10)
+    const d = new Date(clean + 'T12:00:00')
+    if (!isNaN(d.getTime())) return d
+    const fallback = new Date(dateStr)
+    return isNaN(fallback.getTime()) ? null : fallback
+  }
+
   // Slips filtered by selected year + quarter + month
   const filteredSlips = useMemo(() => {
     return slips.filter((s) => {
       if (!s.date) return false
-      const d = new Date(s.date + 'T12:00:00')
+      const d = parseSlipDate(s.date)
+      if (!d) return false
       if (d.getFullYear() !== reportYear) return false
       if (reportQuarter !== 0) {
         const q = s.quarter ?? getQuarterFromDate(s.date)
@@ -135,8 +145,22 @@ export default function Reports() {
   const technicianChartData = useMemo(() => {
     const map = new Map<string, number>()
     filteredSlips.forEach((s) => {
-      if (!s.technicianNames || s.technicianNames.length === 0) return
-      s.technicianNames.forEach((tech) => {
+      let techList: string[] = []
+      if (Array.isArray(s.technicianNames)) {
+        techList = s.technicianNames
+      } else if (typeof (s as any).technicianNames === 'string') {
+        try {
+          const parsed = JSON.parse((s as any).technicianNames)
+          if (Array.isArray(parsed)) techList = parsed
+          else if ((s as any).technicianNames.trim()) techList = [(s as any).technicianNames.trim()]
+        } catch {
+          if ((s as any).technicianNames.trim()) techList = [(s as any).technicianNames.trim()]
+        }
+      } else if ((s as any).technicianName) {
+        techList = [(s as any).technicianName]
+      }
+
+      techList.forEach((tech) => {
         if (!tech || !tech.trim()) return
         map.set(tech.trim(), (map.get(tech.trim()) ?? 0) + 1)
       })
@@ -282,47 +306,36 @@ export default function Reports() {
               <option value={4}>Q4 — Oct, Nov, Dec</option>
             </select>
           </div>
-          {reportQuarter !== 0 && (
-            <div className="form-group" style={{ marginBottom: 0 }}>
-              <label className="form-label" style={{ color: 'rgba(255,255,255,0.8)' }}>Month</label>
-              <select
-                value={reportMonth}
-                onChange={(e) => setReportMonth(Number(e.target.value))}
-                className="form-select"
-                style={{ minWidth: 120 }}
-              >
-                <option value={0}>All Months</option>
-                {reportQuarter === 1 && (
-                  <>
-                    <option value={1}>January</option>
-                    <option value={2}>February</option>
-                    <option value={3}>March</option>
-                  </>
-                )}
-                {reportQuarter === 2 && (
-                  <>
-                    <option value={4}>April</option>
-                    <option value={5}>May</option>
-                    <option value={6}>June</option>
-                  </>
-                )}
-                {reportQuarter === 3 && (
-                  <>
-                    <option value={7}>July</option>
-                    <option value={8}>August</option>
-                    <option value={9}>September</option>
-                  </>
-                )}
-                {reportQuarter === 4 && (
-                  <>
-                    <option value={10}>October</option>
-                    <option value={11}>November</option>
-                    <option value={12}>December</option>
-                  </>
-                )}
-              </select>
-            </div>
-          )}
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label" style={{ color: 'rgba(255,255,255,0.8)' }}>Month</label>
+            <select
+              value={reportMonth}
+              onChange={(e) => {
+                const m = Number(e.target.value)
+                setReportMonth(m)
+                if (m !== 0) {
+                  const q = Math.ceil(m / 3) as 1 | 2 | 3 | 4
+                  setReportQuarter(q)
+                }
+              }}
+              className="form-select"
+              style={{ minWidth: 140 }}
+            >
+              <option value={0}>All Months</option>
+              <option value={1}>January (Q1)</option>
+              <option value={2}>February (Q1)</option>
+              <option value={3}>March (Q1)</option>
+              <option value={4}>April (Q2)</option>
+              <option value={5}>May (Q2)</option>
+              <option value={6}>June (Q2)</option>
+              <option value={7}>July (Q3)</option>
+              <option value={8}>August (Q3)</option>
+              <option value={9}>September (Q3)</option>
+              <option value={10}>October (Q4)</option>
+              <option value={11}>November (Q4)</option>
+              <option value={12}>December (Q4)</option>
+            </select>
+          </div>
           {isAdmin && (
             <button
               type="button"
@@ -480,16 +493,16 @@ export default function Reports() {
               </div>
               <div className="card-body" style={{ minHeight: '300px' }}>
                 {technicianChartData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={280}>
+                  <ResponsiveContainer width="100%" height={290}>
                     <PieChart>
                       <Pie 
                         data={technicianChartData} 
                         dataKey="count" 
                         nameKey="name" 
                         cx="50%" 
-                        cy="50%" 
-                        innerRadius={60}
-                        outerRadius={85} 
+                        cy="42%" 
+                        innerRadius={50}
+                        outerRadius={75} 
                         paddingAngle={5}
                         label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                       >
@@ -498,6 +511,7 @@ export default function Reports() {
                         ))}
                       </Pie>
                       <Tooltip formatter={(value: number) => [value, 'Slips']} />
+                      <Legend verticalAlign="bottom" height={36} wrapperStyle={{ paddingTop: '10px' }} />
                     </PieChart>
                   </ResponsiveContainer>
                 ) : (

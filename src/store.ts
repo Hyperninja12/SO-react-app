@@ -35,6 +35,21 @@ function normalizeEntry(raw: LegacyEntry): WorkSlipEntry {
           recommendation: raw.recommendation ?? '',
         },
       ]
+  let techNames: string[] = []
+  if (Array.isArray(raw.technicianNames)) {
+    techNames = raw.technicianNames
+  } else if (typeof raw.technicianNames === 'string') {
+    try {
+      const parsed = JSON.parse(raw.technicianNames)
+      if (Array.isArray(parsed)) techNames = parsed
+      else if ((raw.technicianNames as string).trim()) techNames = [(raw.technicianNames as string).trim()]
+    } catch {
+      if ((raw.technicianNames as string).trim()) techNames = [(raw.technicianNames as string).trim()]
+    }
+  } else if (raw.technicianName) {
+    techNames = [raw.technicianName]
+  }
+
   return {
     id: raw.id,
     soNumber: raw.soNumber,
@@ -50,7 +65,7 @@ function normalizeEntry(raw: LegacyEntry): WorkSlipEntry {
     actionDone: raw.actionDone ?? '',
     recommendation: raw.recommendation ?? '',
     requesterSignature: raw.requesterSignature ?? '',
-    technicianNames: Array.isArray(raw.technicianNames) ? raw.technicianNames : (raw.technicianName ? [raw.technicianName] : []),
+    technicianNames: techNames,
     approvedBy: raw.approvedBy ?? '',
     createdAt: raw.createdAt,
     printerBrand: rawEntry.printerBrand,

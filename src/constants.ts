@@ -9,7 +9,7 @@ export const OFFICES_IN_HOUSE = [
   "COUNCILOR CAASI", "COUNCILOR ELLIOT", "COUNCILOR AALA",
   "COUNCILOR COQUILLA", "COUNCILOR PEREZ/IPMR", "COUNCILOR UY-SALAZAR",
   "COUNCILOR CATAYAS", "COUNCILOR LEMOS", "COUNCILOR WAKAN",
-  "COUNCILOR ONG", "SKCF DILG", "ABC", "CIO", "COA", "PCSO", "TCYDO", "LYDO"
+  "COUNCILOR ONG", "SKCF", "DILG", "ABC", "CIO", "COA", "PCSO", "TCYDO", "LYDO"
 ] as const
 
 export const OFFICES_ON_SITE = [
@@ -17,7 +17,7 @@ export const OFFICES_ON_SITE = [
   "CEO – Electrical", "CMO – Sports", "Tourism", "CLibrary", "CVET",
   "CVET-Slaughter", "CSU", "TMU", "CAGRO", "CENRO", "CADAC",
   "CHO-CANOCOTAN", "CHO-MABINI", "CDRRMO", "CEEO", "CARCHO",
-  "CMO-INSPECTORATE", "GSO-PSD", "GSO-ADMIN", "CEO-CONSTRUCTION", "CMO-MUSIC","CMO-ATIMAN"
+  "CMO-INSPECTORATE", "GSO-PSD", "GSO-ADMIN", "CEO-CONSTRUCTION", "CMO-MUSIC", "CMO-ATIMAN"
 ] as const
 
 export const OFFICES_INTERAGENCY = [
@@ -26,9 +26,9 @@ export const OFFICES_INTERAGENCY = [
 
 export const BARANGAY_OFFICES = [
   "Apokon", "Visayan", "La Filipina", "Mankilam", "Magugpo South",
-  "Magugpo Poblacion","Magugpo North", "Magugpo East", "Magugpo West", "San Isidro",
+  "Magugpo Poblacion", "Magugpo North", "Magugpo East", "Magugpo West", "San Isidro",
   "Nueva Fuerza", "Madaum", "Busaon", "Pandapan", "Liboganon",
-  "New Balamban", "Cuambogan", "Canocotan", "Pagsabangan"
+  "New Balamban", "Cuambogan", "Canocotan", "Pagsabangan", "Magdum", "San Agustin"
 ] as const
 
 export const TECHNICIANS = [

@@ -79,7 +79,8 @@ export default function ViewData() {
   const [filterOffice, setFilterOffice] = useState<string>('')
   const [filterQuarter, setFilterQuarter] = useState<string>('')
   const [filterMonth, setFilterMonth] = useState<string>('')
-  const filterKey = `${search}-${filterArea}-${filterOffice}-${filterQuarter}-${filterMonth}`
+  const [filterTechnician, setFilterTechnician] = useState<string>('')
+  const filterKey = `${search}-${filterArea}-${filterOffice}-${filterQuarter}-${filterMonth}-${filterTechnician}`
   const [editingId, setEditingId] = useState<string | null>(null)
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [form, setForm] = useState(emptyForm)
@@ -229,7 +230,8 @@ export default function ViewData() {
           areaLabel(s).toLowerCase().includes(q) ||
           s.offices.some((o) => o.toLowerCase().includes(q)) ||
           (s.schoolName || '').toLowerCase().includes(q) ||
-          (s.actionDone || '').toLowerCase().includes(q)
+          (s.actionDone || '').toLowerCase().includes(q) ||
+          (s.technicianNames || []).some((t) => t.toLowerCase().includes(q))
       )
     }
     if (filterArea) {
@@ -251,12 +253,17 @@ export default function ViewData() {
       const mNum = Number(filterMonth)
       list = list.filter((s) => {
         if (!s.date) return false
-        const d = new Date(s.date + 'T12:00:00')
-        return (d.getMonth() + 1) === mNum
+        const clean = s.date.trim().slice(0, 10)
+        const d = new Date(clean + 'T12:00:00')
+        const monthVal = !isNaN(d.getTime()) ? d.getMonth() + 1 : (new Date(s.date).getMonth() + 1)
+        return monthVal === mNum
       })
     }
+    if (filterTechnician) {
+      list = list.filter((s) => (s.technicianNames || []).includes(filterTechnician))
+    }
     return list
-  }, [slips, search, filterArea, filterOffice, filterQuarter, filterMonth, refresh])
+  }, [slips, search, filterArea, filterOffice, filterQuarter, filterMonth, filterTechnician, refresh])
 
   const allOffices = useMemo(() => {
     const set = new Set<string>()
@@ -354,50 +361,52 @@ export default function ViewData() {
           </select>
         </div>
         <div className="form-group" style={{ marginBottom: 0, minWidth: '150px' }}>
+          <label className="form-label">👨‍🔧 Technician</label>
+          <select value={filterTechnician} onChange={(e) => setFilterTechnician(e.target.value)} className="form-select">
+            <option value="">All Technicians</option>
+            {TECHNICIANS.map((tech) => (
+              <option key={tech} value={tech}>{tech}</option>
+            ))}
+          </select>
+        </div>
+        <div className="form-group" style={{ marginBottom: 0, minWidth: '150px' }}>
           <label className="form-label">📅 Quarter</label>
-          <select value={filterQuarter} onChange={(e) => { setFilterQuarter(e.target.value); setFilterMonth(''); }} className="form-select">
-            <option value="">All</option>
+          <select value={filterQuarter} onChange={(e) => setFilterQuarter(e.target.value)} className="form-select">
+            <option value="">All Quarters</option>
             {QUARTER_OPTIONS.map((q) => (
               <option key={q.value} value={q.value}>{q.label}</option>
             ))}
           </select>
         </div>
-        {filterQuarter !== '' && (
-          <div className="form-group" style={{ marginBottom: 0, minWidth: '150px' }}>
-            <label className="form-label">📆 Month</label>
-            <select value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)} className="form-select">
-              <option value="">All Months</option>
-              {filterQuarter === '1' && (
-                <>
-                  <option value="1">January</option>
-                  <option value="2">February</option>
-                  <option value="3">March</option>
-                </>
-              )}
-              {filterQuarter === '2' && (
-                <>
-                  <option value="4">April</option>
-                  <option value="5">May</option>
-                  <option value="6">June</option>
-                </>
-              )}
-              {filterQuarter === '3' && (
-                <>
-                  <option value="7">July</option>
-                  <option value="8">August</option>
-                  <option value="9">September</option>
-                </>
-              )}
-              {filterQuarter === '4' && (
-                <>
-                  <option value="10">October</option>
-                  <option value="11">November</option>
-                  <option value="12">December</option>
-                </>
-              )}
-            </select>
-          </div>
-        )}
+        <div className="form-group" style={{ marginBottom: 0, minWidth: '150px' }}>
+          <label className="form-label">📆 Month</label>
+          <select
+            value={filterMonth}
+            onChange={(e) => {
+              const m = e.target.value
+              setFilterMonth(m)
+              if (m) {
+                const q = Math.ceil(Number(m) / 3)
+                setFilterQuarter(String(q))
+              }
+            }}
+            className="form-select"
+          >
+            <option value="">All Months</option>
+            <option value="1">January (Q1)</option>
+            <option value="2">February (Q1)</option>
+            <option value="3">March (Q1)</option>
+            <option value="4">April (Q2)</option>
+            <option value="5">May (Q2)</option>
+            <option value="6">June (Q2)</option>
+            <option value="7">July (Q3)</option>
+            <option value="8">August (Q3)</option>
+            <option value="9">September (Q3)</option>
+            <option value="10">October (Q4)</option>
+            <option value="11">November (Q4)</option>
+            <option value="12">December (Q4)</option>
+          </select>
+        </div>
         {isAdmin && (
           <button type="button" className="viewdata-download-btn" onClick={downloadReport} disabled={slips.length === 0}>
             ⬇ Download
