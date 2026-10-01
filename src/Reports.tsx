@@ -7,9 +7,18 @@ import { useAuth } from './AuthContext'
 import './Reports.css'
 
 const PIE_COLORS = ['#166534', '#1e40af', '#7c3aed', '#b45309', '#0d9488', '#be123c', '#4f46e5', '#059669']
+function parseSlipDate(dateStr: string | undefined): Date | null {
+  if (!dateStr) return null
+  const clean = dateStr.trim().slice(0, 10)
+  const d = new Date(clean + 'T12:00:00')
+  if (!isNaN(d.getTime())) return d
+  const fallback = new Date(dateStr)
+  return isNaN(fallback.getTime()) ? null : fallback
+}
 
 function getMonthKey(dateStr: string): string {
-  const d = new Date(dateStr + 'T12:00:00')
+  const d = parseSlipDate(dateStr)
+  if (!d) return ''
   const y = d.getFullYear()
   const m = d.getMonth() + 1
   return `${y}-${String(m).padStart(2, '0')}`
@@ -29,6 +38,12 @@ const REPORT_ROW_LABELS = [
   'PRINTER ISOLATION, INSTALLATION, PRINTER SHARING & CHECKING',
 ] as const
 
+function normalizeRequestKey(str: string): string {
+  return (str || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '')
+}
+
 const REQUEST_TO_REPORT_ROW: Record<string, number> = {
   'computer isolation': 0,
   'software isolation installation and checking': 1,
@@ -36,13 +51,15 @@ const REQUEST_TO_REPORT_ROW: Record<string, number> = {
   'password recovery': 1,
   'network isolation installation and checking': 2,
   'hardware installation and checking': 3,
-  'printer isolation (reset, installation, printer sharing, and checking)': 4,
+  'printer isolation reset installation printer sharing and checking': 4,
 }
 
 function getReportRowIndex(requestOrActionDone: string): number | null {
   if (!requestOrActionDone || !requestOrActionDone.trim()) return null
-  const key = requestOrActionDone.trim().toLowerCase()
-  if (REQUEST_TO_REPORT_ROW[key] !== undefined) return REQUEST_TO_REPORT_ROW[key]
+  const key = normalizeRequestKey(requestOrActionDone)
+  for (const [k, v] of Object.entries(REQUEST_TO_REPORT_ROW)) {
+    if (normalizeRequestKey(k) === key) return v
+  }
   return null
 }
 
@@ -89,14 +106,6 @@ export default function Reports() {
     loadSlips()
   }, [])
 
-  function parseSlipDate(dateStr: string | undefined): Date | null {
-    if (!dateStr) return null
-    const clean = dateStr.trim().slice(0, 10)
-    const d = new Date(clean + 'T12:00:00')
-    if (!isNaN(d.getTime())) return d
-    const fallback = new Date(dateStr)
-    return isNaN(fallback.getTime()) ? null : fallback
-  }
 
   // Slips filtered by selected year + quarter + month
   const filteredSlips = useMemo(() => {
@@ -126,8 +135,8 @@ export default function Reports() {
   const requestTypeChartData = useMemo(() => {
     const map = new Map<string, number>()
     filteredSlips.forEach((s) => {
-      let key = (s.actionDone || '').trim()
-      const matched = REQUEST_TYPES.find(r => r.toLowerCase() === key.toLowerCase())
+      const keyNorm = normalizeRequestKey(s.actionDone || '')
+      const matched = REQUEST_TYPES.find(r => normalizeRequestKey(r) === keyNorm)
       if (matched) {
         map.set(matched, (map.get(matched) ?? 0) + 1)
       }
@@ -223,14 +232,14 @@ export default function Reports() {
     for (const slip of filteredSlips) {
       const section = getSection(slip)
       if (section === null) continue
-      const reports = slip.technicalReports && slip.technicalReports.length > 0
-        ? slip.technicalReports
-        : [{ request: slip.actionDone, actionDone: slip.actionDone, recommendation: slip.recommendation }]
-      const month1Based = slip.date ? new Date(slip.date + 'T12:00:00').getMonth() + 1 : 1
+      const d = parseSlipDate(slip.date)
+      const month1Based = d ? d.getMonth() + 1 : 1
       const col = month1Based - 1
-      for (const r of reports) {
-        const rowIndex = getReportRowIndex(r.request || r.actionDone)
-        if (rowIndex !== null) count[section][rowIndex][col] += 1
+
+      const primaryRequest = slip.actionDone || (slip.technicalReports && slip.technicalReports[0]?.request) || (slip.technicalReports && slip.technicalReports[0]?.actionDone) || ''
+      const rowIndex = getReportRowIndex(primaryRequest)
+      if (rowIndex !== null) {
+        count[section][rowIndex][col] += 1
       }
     }
 
@@ -245,6 +254,11 @@ export default function Reports() {
       const total = vals.reduce((s, n) => s + n, 0)
       rows.push([REPORT_ROW_LABELS[r], ...vals.map(String), String(total)])
     }
+    const sec0Vals = monthCols.map((col) => count[0].reduce((sum, row) => sum + row[col], 0))
+    const sec0Total = sec0Vals.reduce((s, n) => s + n, 0)
+    rows.push(['SUBTOTAL (Local Government)', ...sec0Vals.map(String), String(sec0Total)])
+
+    rows.push([])
 
     rows.push(["Interagency Assistance (DEP-ED, BARANGAY'S, PAO, RTC, BJMP, PNP)", ...monthLabels, 'TOTAL'])
     for (let r = 0; r < 5; r++) {
@@ -252,6 +266,15 @@ export default function Reports() {
       const total = vals.reduce((s, n) => s + n, 0)
       rows.push([REPORT_ROW_LABELS[r], ...vals.map(String), String(total)])
     }
+    const sec1Vals = monthCols.map((col) => count[1].reduce((sum, row) => sum + row[col], 0))
+    const sec1Total = sec1Vals.reduce((s, n) => s + n, 0)
+    rows.push(['SUBTOTAL (Interagency)', ...sec1Vals.map(String), String(sec1Total)])
+
+    rows.push([])
+
+    const grandVals = monthCols.map((_, i) => sec0Vals[i] + sec1Vals[i])
+    const grandTotal = sec0Total + sec1Total
+    rows.push(['TOTAL WORK SLIPS', ...grandVals.map(String), String(grandTotal)])
 
     const csvContent = rows.map((row) => row.map(escape).join(',')).join('\r\n')
     const BOM = '\uFEFF'

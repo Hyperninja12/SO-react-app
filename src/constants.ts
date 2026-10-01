@@ -64,10 +64,18 @@ export const REQUEST_SOFTWARE = [
   "Password Recovery"
 ] as const
 
+function normalizeText(s: string): string {
+  return (s || '').toLowerCase().replace(/[^a-z0-9]/g, '')
+}
+
+function normalizeText(s: string): string {
+  return (s || '').toLowerCase().replace(/[^a-z0-9]/g, '')
+}
+
 export function getRequestCategory(actionDone: string): 'hardware' | 'software' | null {
-  const normalized = (actionDone || '').trim().toLowerCase()
-  if (REQUEST_HARDWARE.some(h => h.trim().toLowerCase() === normalized)) return 'hardware'
-  if (REQUEST_SOFTWARE.some(s => s.trim().toLowerCase() === normalized)) return 'software'
+  const normalized = normalizeText(actionDone)
+  if (REQUEST_HARDWARE.some(h => normalizeText(h) === normalized)) return 'hardware'
+  if (REQUEST_SOFTWARE.some(s => normalizeText(s) === normalized)) return 'software'
   return null
 }
 

@@ -1,15 +1,29 @@
 import sqlite3 from 'sqlite3';
 import { open, Database } from 'sqlite';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export async function initializeDatabase(): Promise<Database> {
   const configuredPath = process.env.DB_PATH?.trim();
-  const dbPath = configuredPath
-    ? path.resolve(process.cwd(), configuredPath)
-    : path.resolve(__dirname, '..', 'workslips.db');
+  let dbPath = path.resolve(__dirname, '..', 'workslips.db');
+
+  if (configuredPath) {
+    const resolvedConfig = path.isAbsolute(configuredPath)
+      ? configuredPath
+      : path.resolve(__dirname, '..', configuredPath);
+
+    if (fs.existsSync(path.dirname(resolvedConfig))) {
+      dbPath = resolvedConfig;
+    } else {
+      console.warn(`Configured DB_PATH directory does not exist: "${configuredPath}". Falling back to default "${dbPath}".`);
+    }
+  }
+
+  console.log(`Using database file at: ${dbPath}`);
+
   const db = await open({
     filename: dbPath,
     driver: sqlite3.Database,
